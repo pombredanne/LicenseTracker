@@ -1,0 +1,139 @@
+
+{% extends "Omega_Template.html" %}
+{% block Title %}{{ software_name }} version {{ software_version }}{% endblock %}
+{% block content %}
+
+<form name="license_request_cont" action="{% url 'request_sent' %}" method="post">
+{% csrf_token %}
+
+Licensor name:<br>
+<input type="text" name="licensor_name"><br><br>
+
+License type:<br>
+<input type="text" name="license_type"><br><br>
+
+Copy of license:<br>
+<textarea name="copy_of_license" id="copy_of_license" rows="10" cols="80"></textarea><br><br>
+
+Where software is used: <br>
+<input type="text" name="where_used"><br>
+Admin, B2C, CCOM, etc.<br><br>
+
+Client where software is used: <br>
+<input type="text" name="client_where_used"><br>
+Can be "none" or "all"<br><br>
+
+Brief description of the nature of the work:<br>
+<input type="text" name="desc_nature_work"><br><br>
+
+Brief description of the function of the work:<br>
+<input type="text" name="desc_function_work"><br><br>
+
+Category of work:<br>
+<select name="category_of_work">
+	<option value='None'>None</option>
+	<option value='Application/Web Servers'>Application/Web Servers</option>
+	<option value='Business Applications'>Business Applications</option>
+	<option value='Collaboration/Communication'>Collaboration/Communication</option>
+	<option value='Data Management/Interaction'>Data Management/Interaction</option>
+	<option value='Database'>Database</option>
+	<option value='Design'>Design</option>
+	<option value='Development Tools'>Development Tools</option>
+	<option value='Document/Content Management'>Document/Content Management</option>
+	<option value='Languages/Frameworks'>Languages/Frameworks</option>
+	<option value='Networking'>Networking</option>
+	<option value='Operating Systems/Tools'>Operating Systems/Tools</option>
+	<option value='Performance/Scalability'>Performance/Scalability</option>
+	<option value='Project Management'>Project Management</option>
+	<option value='Security'>Security</option>
+	<option value='Testing and Diagnostics'>Testing and Diagnostics</option>
+	<option value='User Interface'>User Interface</option>
+	<option value='Utility/Other'>Utility/Other</option>
+	<option value='Web Tools'>Web Tools</option>
+</select><br><br>
+
+Did Marketlive pay for this license?:
+<input type="checkbox" name="if_ML_paid_for" value=True onchange="this.form.ML_pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked" ><br><br>
+
+&ensp;&ensp;&ensp;&ensp;If so, did Marketlive pay $25,000 or more for it?:
+<input type="checkbox" name="ML_pay_twenfivk" value=True disabled=true><br><br>
+
+&ensp;&ensp;&ensp;&ensp;Are ongoing payments expected?:
+<input type="checkbox" name="ongoing_payments" value=True onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked" disabled=true/><br><br>
+
+
+
+
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;How much?: $
+<input type="number" name="ongoing_how_much" disabled=true><br><br>
+
+
+
+&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;How often?:
+<input type="number" name="ongoing_how_often" disabled=true>months<br><br>
+
+
+
+Do we use this work?:
+<input type="checkbox" name="we_use_work" value=True><br><br>
+
+Do we distribute this?:<br>
+<select name="do_we_distribute">
+	<option value='Not Distributed'>Not Distributed</option>
+	<option value='Binary Distribution Only'>Binary Distribution Only</option>
+	<option value='Source Distribution Only'>Source Distribution Only</option>
+	<option value='Source and Binary Distribution'>Source and Binary Distribution</option>
+	<option value='Script Distribution'>Script Distribution</option>
+	<option value='Image / Icon Distribution'>Image / Icon Distribution</option>
+	<option value='Mark-up Languages Distribution'>Mark-up Languages Distribution</option>
+</select><br><br>
+
+Did we host this software?:
+<input type="checkbox" name="did_we_host" value=True><br><br>
+
+Do we allow any 3rd party to host this software?:
+<input type="checkbox" name="third_party_host" value=True><br><br>
+
+Have we modified it in any manner?:
+<input type="checkbox" name="if_modified" value=True><br><br>
+
+Do we use this software to generate code?:
+<input type="checkbox" name="use_generate_code" value=True><br><br>
+
+&ensp;&ensp;&ensp;&ensp;If yes, what form is it distributed in?:<br>
+&ensp;&ensp;&ensp;&ensp;<select name="form_gen_code">
+							<option value='Not Used to Generate Code'>Not Used to Generate Code</option>
+							<option value='Not Distributed'>Not Distributed</option>
+							<option value='Binary Distribution Only'>Binary Distribution Only</option>
+							<option value='Source Distribution Only'>Source Distribution Only</option>
+							<option value='Source and Binary Distribution'>Source and Binary Distribution</option>
+							<option value='Script Distribution'>Script Distribution</option>
+							<option value='Image / Icon Distribution'>Image / Icon Distribution</option>
+							<option value='Mark-up Languages Distribution'>Mark-up Languages Distribution</option>
+						</select><br><br>
+
+How hard would this software be to replace?<br>
+<select name="how_hard_replace">
+	<option value='Trivial'>Trivial</option>
+	<option value='Medium'>Medium</option>
+	<option value='Hard'>Hard</option>
+	<option value='Nearly Impossible'>Nearly Impossible</option>
+</select><br><br>
+
+Is this software required to meet any obligation?:
+<input type="checkbox" name="obligation" value=True><br><br>
+
+Additional comments (if any):<br>
+<textarea name="additional_comments" id="additional_comments" rows="5" cols="80">No additional comments</textarea><br><br>
+
+<b><p style='color:red'>Check if all non-disabled text fields have text before hitting "submit".</p></b>
+
+<input type="hidden" name="software_name" value = {{ software_name }} >
+<input type="hidden" name="software_version" value = {{ software_version }} >
+<input type="hidden" name="requested_by_first" value = {{ current_user_first }} >
+<input type="hidden" name="requested_by_last" value = {{ current_user_last }} >
+
+<input style="width:200px" type="submit" value="Submit"><br><br><br><br>
+
+
+{% endblock content %}

@@ -1,0 +1,21 @@
+{% extends "Omega_Template.html" %}
+{% block Title %}New license request{% endblock %}
+{% block content %}
+
+{% if error %}
+<span style='color:red'>{{ error }}</span><br><br>
+{% endif %}
+
+<form name="new_license_request" action="{% url 'intermediate_logic' %}" method="post">
+{% csrf_token %}
+
+Software name:<br>
+<input type="text" name="software_name"><br><br>
+
+Software version:<br>
+<input type="text" name="software_version"><br><br>
+
+<input type="submit" value="Continue">
+</form>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>{% block head %}{% endblock %}</head>
+<body>
+
+{% if auth_session = True %}
+
+	{% block entire %}
+	<div id="container" style="height:300px;float:left;">
+		<div id="left_margin" style="background-color:white;height:500px;width:200px;float:left;">
+		</div>
+
+		<div id="header" style="background-color:lightgrey;height:50px;width:1000px;text-align:center">
+			<h1 style="margin-bottom:0;"> <u>{% block Title %}Test!{% endblock %}</u> </h1></div>
+
+		<div id="sidebar" style="background-color:lightgrey;width:200px;float:left;">
+	{% block Sidebar %}
+		{% if approver_session = True %}
+			<ul><font size=5>
+				<li><a href="{% url 'home' %}"> Home page </a></li><br>
+				<li><a href="{% url 'view_licenses' %}"> View licenses </a></li><br>
+				<li><a href="{% url 'request_form' %}"> Create new license </a></li><br>
+				<li><a href="{% url 'user_requests' %}"> View user requests </a></li><br>
+				<li><a href="/login/logout"> Logout </a></li></font>
+
+		{% else %}
+			<ul><font size=5>
+				<li><a href="{% url 'home' %}"> Home page </a></li><br>
+				<li><a href="{% url 'view_licenses' %}"> View licenses </a></li><br>
+				<li><a href="{% url 'request_form' %}"> Submit license request </a></li><br>
+				<li><a href="/login/logout"> Logout </a></li></font>
+		{% endif %}
+	{% endblock %}</div>
+
+		<div id="content_left_margin" style="height:100px;width:30px;float:left;">
+		</div>
+		
+
+		<div id="content" style="width:540px;float:left;">
+			<br><br>
+
+	{% block content %}
+		He he he
+	{% endblock %}
+		</div>
+
+		</div>
+
+	{% endblock entire %}
+
+{% else %}
+	<p> You are not logged in. </p>
+	<p> <a href="/login/"> Go to the login page. </a></p>
+
+{% endif %}

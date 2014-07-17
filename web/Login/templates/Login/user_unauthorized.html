@@ -1,0 +1,7 @@
+{% if denied = True %}
+Your request for a user account was denied by an approver. If you believe this to be a mistake, contact an approver and send a new user request, with a different username. 
+{% else %}
+<p> Your username and password were recognized, but your account is still pending authorization by an approver.</p>
+{% endif %}
+
+<p><a href="/login/">Return to login page</a>

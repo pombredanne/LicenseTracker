@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<h3> Login failed </h3>
+{% if entered_name %}
+<p> Username or password is incorrect. </p>
+{% else %}
+<p> You didn't type in a username. </p>
+{% endif %}
+<p><a href="/login">Try again</a></p>
+<p><a href="/login/new_user">New user?</a></p>

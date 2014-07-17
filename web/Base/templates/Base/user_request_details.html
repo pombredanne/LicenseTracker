@@ -1,0 +1,42 @@
+{% extends "Omega_Template.html" %}
+
+{% block Title %}{{ user_request_firstname}} {{ user_request_lastname }} {% endblock %}
+
+{% block content %}
+<form name="user_request_approve" action="/user_approved/" method="post">
+{% csrf_token %}
+Username: <input type="text" name="request_username" value = {{ user_request_username }} ><br>
+First name: <input type="text" name="request_first_name" value = {{ user_request_firstname }} ><br>
+Last name: <input type="text" name="request_last_name" value = {{ user_request_lastname }} ><br>
+Email: <input type="email" name="request_email" value = {{ user_request_email }} ><br>
+
+Approver Status:<br>
+<input type="radio" name="request_approver_status" value=True>True<br>
+<input type="radio" name="request_approver_status" value=False>False<br>
+
+<input type="hidden" name="request_password" value = {{ user_request_password }} >
+<input type="hidden" name="request_unalt_username" value = {{ user_request_username }} >
+<input type="submit" value="Approve" />
+</form>
+
+<br>
+
+<form name="user_request_deny" action="/user_denied/" method="post">
+{% csrf_token %}
+<input type="hidden" name="request_username" value = {{ user_request_username }} >
+<input type="submit" value="Deny" />
+</form>
+
+<br>
+
+<form name="user_request_back" action="/user_requests" method="get">
+<input type="submit" value="Back" />
+</form>
+
+
+<p><font size="2"> All fields are case-sensitive </font></p>
+
+
+
+
+{% endblock %}

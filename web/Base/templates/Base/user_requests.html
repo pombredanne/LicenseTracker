@@ -1,0 +1,15 @@
+{% extends "Omega_Template.html" %}
+
+{% block Title %}Unanswered User Requests{% endblock %}
+
+{% block content %}
+<h3>Unanswered requests:</h3>
+<ul>
+
+{% for user, first, last in user_list %}
+<li><a href=/request/{{ user }}/> {{ first }} {{ last }} </a></li>
+<br>
+{% endfor %}
+</ul>
+
+{% endblock %}

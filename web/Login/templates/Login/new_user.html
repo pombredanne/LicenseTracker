@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+{% if error_message %}
+<p style='color:red'>{{ error_message }}</p>
+{% endif %}
+
+<form name="new_user" action="/login/request_sent/" method="post">
+{% csrf_token %}
+<h3>Create new user request</h3>
+Username: <input type="text" name="requested_username"><br>
+Password: <input type="password" name="requested_password"><br>
+Confirm password: <input type="password" name="confirm_password"><br><br>
+First name: <input type="text" name="request_first_name"><br>
+Last name: <input type="text" name="request_last_name"><br><br>
+Email: <input type="email" name="request_email"><br>
+
+<input type="submit" value="Submit Request" />
+</form>
+<p><font size="2"> All fields are case-sensitive </font></p>
+
+<p><a href='/login'> Return to login screen </a></p>
+

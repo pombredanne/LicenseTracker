@@ -1,0 +1,12 @@
+{% extends "Omega_Template.html" %}
+{% block Title %}Request sent{% endblock %}
+{% block content %}
+
+{% if approver_session = True %}
+License added.
+{% else %}
+Request sent. Please wait for your request to be reviewed by an approver.
+{% endif %}
+
+
+{% endblock %}

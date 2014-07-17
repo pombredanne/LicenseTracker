@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+
+<h2>Login</h2>
+<form name="index" action="/login/complete/" method="post">
+{% csrf_token %}
+Username: <input type="text" name="typed_username"><br>
+Password: <input type="password" name="typed_password"><br>
+
+<input type="submit" value="Login" />
+</form>
+<p><font size="2"> Both fields are case-sensitive </font></p>
+
+{% if auth_session = True %}
+<p> You are already logged in. Click <a href='/'> here</a> to go to the home page.</p>
+{% endif %}
