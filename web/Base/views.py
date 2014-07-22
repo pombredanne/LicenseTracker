@@ -433,6 +433,7 @@ def request_detail(request, license_id):
 			'requested_by'		  : viewed_license.requested_by,
 			'authorization'		  : viewed_license.authorization,
 			'date_requested'	  : viewed_license.date_requested,
+			'license_id'		  : viewed_license.id,
 		})
 		return HttpResponse(template.render(context))
 
@@ -443,7 +444,112 @@ def request_detail(request, license_id):
 		})
 		return HttpResponse(template.render(context))
 
+def license_approved(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
 
+	licensor_name 		= request.POST['licensor_name']
+	license_type 		= request.POST['license_type']
+	copy_of_license 	= request.POST['copy_of_license']
+	where_used 			= request.POST['where_used']
+	client_where_used	= request.POST['client_where_used']
+	desc_nature_work	= request.POST['desc_nature_work']
+	desc_function_work 	= request.POST['desc_function_work']
+	category_of_work 	= request.POST['category_of_work']
+	if_ML_paid_for 		= request.POST.get('if_ML_paid_for', False)
+	ML_pay_twenfivk 	= request.POST.get('ML_pay_twenfivk', False)
+	ongoing_payments	= request.POST.get('ongoing_payments', False)
+	if ongoing_payments:	
+		ongoing_how_much 	= request.POST['ongoing_how_much']
+		ongoing_how_often 	= request.POST['ongoing_how_often']
+	we_use_work 		= request.POST.get('we_use_work', False)
+	do_we_distribute 	= request.POST['do_we_distribute']
+	did_we_host 		= request.POST.get('did_we_host', False)
+	third_party_host 	= request.POST.get('third_party_host', False)
+	if_modified 		= request.POST.get('if_modified', False)
+	use_generate_code 	= request.POST.get('use_generate_code', False)
+	if use_generate_code:
+		form_gen_code 		= request.POST['form_gen_code']
+	how_hard_replace 	= request.POST['how_hard_replace']
+	obligation 			= request.POST.get('obligation', False)
+	additional_comments = request.POST['additional_comments']
+	software_name 		= request.POST['software_name']
+	software_version 	= request.POST['software_version']
+	license_id			= request.POST['license_id']
+
+	if not ongoing_payments:	
+		ongoing_how_much = 0
+		ongoing_how_often = 0
+
+	if not use_generate_code:
+		form_gen_code = 'Not Used to Generate Code'
+
+	if not licensor_name or not license_type or not copy_of_license or not where_used or not client_where_used or not desc_nature_work or not desc_function_work or not category_of_work or not do_we_distribute or not form_gen_code or not how_hard_replace or not additional_comments or not software_name or not software_version:
+		return HttpResponse("One or more fields was left blank. Please press your browser's 'back' button and check all boxes.")
+
+	approved_license = License.objects.get(id = license_id)
+
+	approved_license.licensor_name = licensor_name
+	approved_license.license_type = license_type
+	approved_license.copy_of_license = copy_of_license
+	approved_license.where_used = where_used
+	approved_license.client_where_used = client_where_used
+	approved_license.desc_nature_work = desc_nature_work
+	approved_license.desc_function_work = desc_function_work
+	approved_license.category_of_work = category_of_work
+	approved_license.if_ML_paid_for = if_ML_paid_for
+	approved_license.ML_pay_twenfivk = ML_pay_twenfivk
+	approved_license.ongoing_payments = ongoing_payments
+	approved_license.ongoing_how_much = ongoing_how_much
+	approved_license.ongoing_how_often = ongoing_how_often
+	approved_license.we_use_work = we_use_work
+	approved_license.do_we_distribute = do_we_distribute
+	approved_license.did_we_host = did_we_host
+	approved_license.third_party_host = third_party_host
+	approved_license.if_modified = if_modified
+	approved_license.use_generate_code = use_generate_code
+	approved_license.form_gen_code = form_gen_code
+	approved_license.how_hard_replace = how_hard_replace
+	approved_license.obligation = obligation
+	approved_license.additional_comments = additional_comments
+	approved_license.software_name = software_name
+	approved_license.software_version = software_version
+	approved_license.authorization = 'accepted'
+	approved_license.save()
+
+	template  = loader.get_template('Base/license_approved.html') 
+	context   = RequestContext(request, {
+		'auth_session'   	: auth_session,
+		'approver_session' 	: approver_session,
+	})
+	return HttpResponse(template.render(context))
+
+def license_denied(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
+	license_id = request.POST['license_id']
+	denied_license = License.objects.get(id = license_id)
+	denied_license.authorization = 'denied'
+	denied_license.save()
+	template  = loader.get_template('Base/license_denied.html') 
+	context   = RequestContext(request, {
+		'auth_session'   	: auth_session,
+		'approver_session' 	: approver_session,
+	})
+	return HttpResponse(template.render(context))
 
 #def template_view(request):
 	#if 'auth' in request.session:

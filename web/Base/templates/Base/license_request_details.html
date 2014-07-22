@@ -1,19 +1,22 @@
+
 {% extends "Omega_Template.html" %}
 
 {% block Title %}{{ software_name }} version {{ software_version }} request {% endblock %}
 
 {% block content %}
-<form name="license_request_approve" action="/" method="post">
+<form name="license_request_approve" action="/license_approved/" method="post" id="license_request_accept">
 {% csrf_token %}
-Software name: <br><textarea name="software_name" rows="1" cols="15">{{ software_name }}</textarea><br><br>
-Software version: <br><textarea name="software_version" rows="1" cols="15">{{ software_version }}</textarea><br><br>
-Licensor name: <br><textarea name="licensor_name" rows="1" cols="15">{{ licensor_name }}</textarea><br><br>
-License type: <br><textarea name="license_type" rows="1" cols="15">{{ license_type }}</textarea><br><br><br>
+<p>Requested by <b>{{ requested_by }}</b> on <b>{{ date_requested }}</b></p><br>
+
+Software name: <br><textarea name="software_name" rows="1" cols="25">{{ software_name }}</textarea><br><br>
+Software version: <br><textarea name="software_version" rows="1" cols="25">{{ software_version }}</textarea><br><br>
+Licensor name: <br><textarea name="licensor_name" rows="1" cols="25">{{ licensor_name }}</textarea><br><br>
+License type: <br><textarea name="license_type" rows="1" cols="25">{{ license_type }}</textarea><br><br>
 Copy of license: <br><textarea name="copy_of_license" rows="10" cols="80">{{ copy_of_license }}</textarea><br><br>
-Where it is used: <br><textarea name="where_used" rows="1" cols="15">{{ where_used }}</textarea><br><br>
-Client where it is used: <br><textarea name="client_where_used" rows="1" cols="15">{{ client_where_used }}</textarea><br><br>
-Description of the nature of the work: <br><textarea name="desc_nature_work" rows="1" cols="15">{{ desc_nature_work }}</textarea><br><br>
-Description of the function of the work: <br><textarea name="desc_function_work" rows="1" cols="15">{{ desc_function_work }}</textarea><br><br>
+Where it is used: <br><textarea name="where_used" rows="1" cols="25">{{ where_used }}</textarea><br><br>
+Client where it is used: <br><textarea name="client_where_used" rows="1" cols="25">{{ client_where_used }}</textarea><br><br>
+Description of the nature of the work: <br><textarea name="desc_nature_work" rows="1" cols="25">{{ desc_nature_work }}</textarea><br><br>
+Description of the function of the work: <br><textarea name="desc_function_work" rows="1" cols="25">{{ desc_function_work }}</textarea><br><br>
 
 Category of work: <br>
 <select name="category_of_work">
@@ -36,47 +39,80 @@ Category of work: <br>
 	<option value='User Interface' {% if category_of_work = 'User Interface' %}selected{% endif %}>User Interface</option>
 	<option value='Utility/Other' {% if category_of_work = 'Utility/Other' %}selected{% endif %}>Utility/Other</option>
 	<option value='Web Tools' {% if category_of_work = 'Web Tools' %}selected{% endif %}>Web Tools</option>
+</select><br><br><br>
+
+Marketlive paid for this software: <input type="checkbox" name="if_ML_paid_for" value=True {% if if_ML_paid_for = True %}checked {% endif %} onchange="this.form.ML_pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked"><br><br>
+
+&emsp;&emsp;Marketlive paid $25,000 or more for this software: <input type="checkbox" name="ML_pay_twenfivk" value=True {% if ML_pay_twenfivk = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %}><br><br> 
+
+&emsp;&emsp;Ongoing payments expected: <input type="checkbox" name="ongoing_payments" value=True {% if ongoing_payments = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %} onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked"><br><br> 
+
+&emsp;&emsp;&emsp;&emsp;Ongoing payments are $<input type="number" name="ongoing_how_much" value={{ongoing_how_much}} {% if not ongoing_payments = True %}disabled {% endif %}><br>
+
+&emsp;&emsp;&emsp;&emsp;every <input type="number" name="ongoing_how_often" value={{ongoing_how_often}} {% if not ongoing_payments = True %}disabled {% endif %}> months<br><br>
+
+We use this work: <input type="checkbox" name="we_use_work" value=True {% if we_use_work = True %}checked {% endif %}><br><br>
+
+Do we distribute this?:<br>
+<select name="do_we_distribute">
+	<option value='Not Distributed' {% if do_we_distribute = 'Not Distributed' %}selected{% endif %}>Not Distributed</option>
+	<option value='Binary Distribution Only'{% if do_we_distribute = 'Binary Distribution Only' %}selected{% endif %}>Binary Distribution Only</option>
+	<option value='Source Distribution Only'{% if do_we_distribute = 'Source Distribution Only' %}selected{% endif %}>Source Distribution Only</option>
+	<option value='Source and Binary Distribution'{% if do_we_distribute = 'Source and Binary Distribution' %}selected{% endif %}>Source and Binary Distribution</option>
+	<option value='Script Distribution'{% if do_we_distribute = 'Script Distribution' %}selected{% endif %}>Script Distribution</option>
+	<option value='Image / Icon Distribution'{% if do_we_distribute = 'Image / Icon Distribution' %}selected{% endif %}>Image / Icon Distribution</option>
+	<option value='Mark-up Languages Distribution'{% if do_we_distribute = 'Mark-up Languages Distribution' %}selected{% endif %}>Mark-up Languages Distribution</option>
 </select><br><br>
 
-Marketlive paid for this software: <input type="checkbox" name="if_ML_paid_for" value=True {% if if_ML_paid_for = True %}checked {% endif %}><br><br>
+We host this software: <input type="checkbox" name="did_we_host" value=True {% if did_we_host = True %}checked {% endif %}><br><br>
 
+We allow a third party to host this software: <input type="checkbox" name="third_party_host" value=True {% if third_party_host = True %}checked {% endif %}><br><br>
+
+We have modified this software: <input type="checkbox" name="if_modified" value=True {% if if_modified = True %}checked {% endif %}><br><br>
+
+We use this software to generate code: <input type="checkbox" name="use_generate_code" value=True {% if use_generate_code = True %}checked {% endif %} onchange="this.form.form_gen_code.disabled =! this.checked"><br><br>
+
+&emsp;&emsp;
+What form is the generated code distributed in?: <br>
+&emsp;&emsp;
+<select name="form_gen_code" {% if not if_ML_paid_for = True %}disabled {% endif %}>
+	<option value='Not Used to Generate Code' {% if form_gen_code = 'Not used to generate code' %}selected{% endif %}>Not Used to Generate Code</option>
+	<option value='Not Distributed' {% if form_gen_code = 'Not Distributed' %}selected{% endif %}>Not Distributed</option>
+	<option value='Binary Distribution Only'{% if form_gen_code = 'Binary Distribution Only' %}selected{% endif %}>Binary Distribution Only</option>
+	<option value='Source Distribution Only'{% if form_gen_code = 'Source Distribution Only' %}selected{% endif %}>Source Distribution Only</option>
+	<option value='Source and Binary Distribution'{% if form_gen_code = 'Source and Binary Distribution' %}selected{% endif %}>Source and Binary Distribution</option>
+	<option value='Script Distribution'{% if form_gen_code = 'Script Distribution' %}selected{% endif %}>Script Distribution</option>
+	<option value='Image / Icon Distribution'{% if form_gen_code = 'Image / Icon Distribution' %}selected{% endif %}>Image / Icon Distribution</option>
+	<option value='Mark-up Languages Distribution'{% if form_gen_code = 'Mark-up Languages Distribution' %}selected{% endif %}>Mark-up Languages Distribution</option>
+</select><br><br>
+
+How hard would this software be to replace?:<br>
+<select name="how_hard_replace">
+	<option value='Trivial' {% if how_hard_replace = 'Trivial' %}selected{% endif %}>Trivial</option>
+	<option value='Medium' {% if how_hard_replace = 'Medium' %}selected{% endif %}>Medium</option>
+	<option value='Hard' {% if how_hard_replace = 'Hard' %}selected{% endif %}>Hard</option>
+	<option value='Nearly Impossible' {% if how_hard_replace = 'Nearly Impossible' %}selected{% endif %}>Nearly Impossible</option>
+</select><br><br>
+
+Is this software required to meet any obligation?:
+<input type="checkbox" name="obligation" value=True {% if obligation = True %}checked {% endif %}><br><br>
+
+Additional comments:<br>
+<textarea name="additional_comments" id="additional_comments" rows="5" cols="80">{{ additional_comments }}</textarea><br><br>
+
+<input type="hidden" name="license_id" value={{ license_id }}>
 </form>
 
+<form name="license_request_deny" id="license_request_deny" action="/license_denied/" method="post">{% csrf_token %}
+<input type="hidden" name="license_id" value={{ license_id }}></form>
+
+<form name="back" action="/license_requests/" id="back" method="post">{% csrf_token %}</form>
+
+<input style="width:100px" type="submit" value="Approve" form='license_request_accept'>
+<input style="width:100px" type="submit" value="Deny" form='license_request_deny'>
+<input style="width:100px" type="submit" value="Back" form='back'>
 
 <p><font size="2"> All fields are case-sensitive </font></p>
-
-
-
-
-
-{{ software_name }}<br>
-{{ software_version }}<br>
-{{ licensor_name }}<br>
-{{ license_type }}<br>
-{{ copy_of_license }}<br>
-{{ where_used }}<br>
-{{ client_where_used }}<br>
-{{ desc_nature_work }}<br>
-{{ desc_function_work }}<br>
-{{ category_of_work }}<br>
-{{ if_ML_paid_for }}<br>
-{{ ML_pay_twenfivk }}<br>
-{{ ongoing_payments }}<br>
-{{ ongoing_how_much }}<br>
-{{ ongoing_how_often }}<br>
-{{ we_use_work }}<br>
-{{ do_we_distribute }}<br>
-{{ did_we_host }}<br>
-{{ third_party_host }}<br>
-{{ if_modified }}<br>
-{{ use_generate_code }}<br>
-{{ form_gen_code }}<br>
-{{ how_hard_replace }}<br>
-{{ obligation }}<br>
-{{ additional_comments }}<br>
-{{ requested_by }}<br>
-{{ authorization }}<br>
-{{ date_requested }}<br>
 
 
 {% endblock %}
