@@ -132,4 +132,5 @@ def request_sent(request):
 def logout(request):
 	request.session['current_user'] = False
 	request.session['auth']         = False
+	request.session['approver']		= False
 	return HttpResponseRedirect('/login')

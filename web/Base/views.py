@@ -47,8 +47,6 @@ def view_licenses(request):
 			c = [license.software_name, license.software_version, license.license_type, license.date_requested]
 			license_list.append(c)
 
-
-
 	template  = loader.get_template('Base/view_licenses.html') 
 	context   = RequestContext(request, {
 		'auth_session' 		: auth_session,
@@ -244,13 +242,6 @@ def user_requests(request):
 	else:
 		approver_session = False
 
-	if 'current_user' in request.session and auth_session == True:
-		current_username = request.session['current_user']
-		current_user = User.objects.get(username = current_username)
-		current_user_approver_status = current_user.approver_status
-	else:
-		current_user_approver_status = False
-
 	user_list = []
 	for urequest in User_request.objects.all():
 		if urequest.denied != True:
@@ -261,7 +252,7 @@ def user_requests(request):
 			user_list.append(c)
 
 
-	if current_user_approver_status == True:
+	if approver_session == True:
 		template  = loader.get_template('Base/user_requests.html') 
 		context   = RequestContext(request, {
 			'auth_session'   : auth_session,
@@ -289,16 +280,9 @@ def user_request_detail(request, viewed_username):
 	else:
 		approver_session = False
 
-	if 'current_user' in request.session and auth_session == True:
-		current_username = request.session['current_user']
-		current_user = User.objects.get(username = current_username)
-		current_user_approver_status = current_user.approver_status
-	else:
-		current_user_approver_status = False
-
 	viewed_user = User_request.objects.get(username = viewed_username)
 
-	if current_user_approver_status == True:
+	if approver_session == True:
 		template  = loader.get_template('Base/user_request_details.html') 
 		context   = RequestContext(request, {
 			'auth_session' 			 : auth_session,
@@ -373,3 +357,112 @@ def user_denied(request):
 		'username' : denied_user.username,
 	})
 	return HttpResponse(template.render(context))
+
+def license_requests(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	
+	license_list = []
+	for lrequest in License.objects.all():
+		if lrequest.authorization == 'none' or not lrequest.authorization:
+			a = '_license'
+			b = str(lrequest.software_name)
+			c = b+a
+			c = [lrequest.software_name, lrequest.software_version, lrequest.license_type, lrequest.date_requested, lrequest.id]
+			license_list.append(c)
+
+	if auth_session == True:
+		template  = loader.get_template('Base/license_requests.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'license_list'		: license_list,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
+def request_detail(request, license_id):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
+	viewed_license = License.objects.get(id = license_id)
+
+	if approver_session == True:
+		template  = loader.get_template('Base/license_request_details.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		  : auth_session,
+			'approver_session'	  : approver_session,
+			'software_name'		  : viewed_license.software_name,
+			'software_version'	  : viewed_license.software_version,
+			'licensor_name'		  : viewed_license.licensor_name,
+			'license_type'		  : viewed_license.license_type,
+			'copy_of_license'	  : viewed_license.copy_of_license,
+			'where_used'		  : viewed_license.where_used,
+			'client_where_used'	  : viewed_license.client_where_used,
+			'desc_nature_work'	  : viewed_license.desc_nature_work,
+			'desc_function_work'  : viewed_license.desc_function_work,
+			'category_of_work'	  : viewed_license.category_of_work,
+			'if_ML_paid_for'	  : viewed_license.if_ML_paid_for,
+			'ML_pay_twenfivk'	  : viewed_license.ML_pay_twenfivk,
+			'ongoing_payments'	  : viewed_license.ongoing_payments,
+			'ongoing_how_much'	  : viewed_license.ongoing_how_much,
+			'ongoing_how_often'	  : viewed_license.ongoing_how_often,
+			'we_use_work'		  : viewed_license.we_use_work,
+			'do_we_distribute'	  : viewed_license.do_we_distribute,
+			'did_we_host'		  : viewed_license.did_we_host,
+			'third_party_host'	  : viewed_license.third_party_host,
+			'if_modified'		  : viewed_license.if_modified,
+			'use_generate_code'	  : viewed_license.use_generate_code,
+			'form_gen_code'		  : viewed_license.form_gen_code,
+			'how_hard_replace'	  : viewed_license.how_hard_replace,
+			'obligation'		  : viewed_license.obligation,
+			'additional_comments' : viewed_license.additional_comments,
+			'requested_by'		  : viewed_license.requested_by,
+			'authorization'		  : viewed_license.authorization,
+			'date_requested'	  : viewed_license.date_requested,
+		})
+		return HttpResponse(template.render(context))
+
+	else:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session' : auth_session,
+		})
+		return HttpResponse(template.render(context))
+
+
+
+#def template_view(request):
+	#if 'auth' in request.session:
+	#	auth_session = request.session['auth']
+	#else:
+	#	auth_session = False
+	#if 'approver' in request.session:
+	#	approver_session = request.session['approver']
+	#else:
+	#	approver_session = False
+	#
+	#VIEW
+	#
+	#if auth_session == True:
+	#	template  = loader.get_template('Base/TEMPLATE.html') 
+	#	context   = RequestContext(request, {
+	#		'auth_session' 		: auth_session,
+	#		'approver_session' 	: approver_session,
+	#	})
+	#	return HttpResponse(template.render(context))
+	#else:
+	#	return HttpResponseRedirect('/login')

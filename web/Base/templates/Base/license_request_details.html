@@ -1,0 +1,82 @@
+{% extends "Omega_Template.html" %}
+
+{% block Title %}{{ software_name }} version {{ software_version }} request {% endblock %}
+
+{% block content %}
+<form name="license_request_approve" action="/" method="post">
+{% csrf_token %}
+Software name: <br><textarea name="software_name" rows="1" cols="15">{{ software_name }}</textarea><br><br>
+Software version: <br><textarea name="software_version" rows="1" cols="15">{{ software_version }}</textarea><br><br>
+Licensor name: <br><textarea name="licensor_name" rows="1" cols="15">{{ licensor_name }}</textarea><br><br>
+License type: <br><textarea name="license_type" rows="1" cols="15">{{ license_type }}</textarea><br><br><br>
+Copy of license: <br><textarea name="copy_of_license" rows="10" cols="80">{{ copy_of_license }}</textarea><br><br>
+Where it is used: <br><textarea name="where_used" rows="1" cols="15">{{ where_used }}</textarea><br><br>
+Client where it is used: <br><textarea name="client_where_used" rows="1" cols="15">{{ client_where_used }}</textarea><br><br>
+Description of the nature of the work: <br><textarea name="desc_nature_work" rows="1" cols="15">{{ desc_nature_work }}</textarea><br><br>
+Description of the function of the work: <br><textarea name="desc_function_work" rows="1" cols="15">{{ desc_function_work }}</textarea><br><br>
+
+Category of work: <br>
+<select name="category_of_work">
+	<option value='None'>None</option>
+	<option value='Application/Web Servers' {% if category_of_work = 'Application/Web Servers' %}selected{% endif %}>Application/Web Servers</option>
+	<option value='Business Applications' {% if category_of_work = 'Business Applications' %}selected{% endif %}>Business Applications</option>
+	<option value='Collaboration/Communication' {% if category_of_work = 'Collaboration/Communication' %}selected{% endif %}>Collaboration/Communication</option>
+	<option value='Data Management/Interaction' {% if category_of_work = 'Data Management/Interaction' %}selected{% endif %}>Data Management/Interaction</option>
+	<option value='Database' {% if category_of_work = 'Database' %}selected{% endif %}>Database</option>
+	<option value='Design' {% if category_of_work = 'Design' %}selected{% endif %}>Design</option>
+	<option value='Development Tools' {% if category_of_work = 'Development Tools' %}selected{% endif %}>Development Tools</option>
+	<option value='Document/Content Management' {% if category_of_work = 'Document/Content Management' %}selected{% endif %}>Document/Content Management</option>
+	<option value='Languages/Frameworks' {% if category_of_work = 'Languages/Frameworks' %}selected{% endif %}>Languages/Frameworks</option>
+	<option value='Networking' {% if category_of_work = 'Networking' %}selected{% endif %}>Networking</option>
+	<option value='Operating Systems/Tools' {% if category_of_work = 'Operating Systems/Tools' %}selected{% endif %}>Operating Systems/Tools</option>
+	<option value='Performance/Scalability' {% if category_of_work = 'Performance/Scalability' %}selected{% endif %}>Performance/Scalability</option>
+	<option value='Project Management' {% if category_of_work = 'Project Management' %}selected{% endif %}>Project Management</option>
+	<option value='Security' {% if category_of_work = 'Security' %}selected{% endif %}>Security</option>
+	<option value='Testing and Diagnostics' {% if category_of_work = 'Testing and Diagnostics' %}selected{% endif %}>Testing and Diagnostics</option>
+	<option value='User Interface' {% if category_of_work = 'User Interface' %}selected{% endif %}>User Interface</option>
+	<option value='Utility/Other' {% if category_of_work = 'Utility/Other' %}selected{% endif %}>Utility/Other</option>
+	<option value='Web Tools' {% if category_of_work = 'Web Tools' %}selected{% endif %}>Web Tools</option>
+</select><br><br>
+
+Marketlive paid for this software: <input type="checkbox" name="if_ML_paid_for" value=True {% if if_ML_paid_for = True %}checked {% endif %}><br><br>
+
+</form>
+
+
+<p><font size="2"> All fields are case-sensitive </font></p>
+
+
+
+
+
+{{ software_name }}<br>
+{{ software_version }}<br>
+{{ licensor_name }}<br>
+{{ license_type }}<br>
+{{ copy_of_license }}<br>
+{{ where_used }}<br>
+{{ client_where_used }}<br>
+{{ desc_nature_work }}<br>
+{{ desc_function_work }}<br>
+{{ category_of_work }}<br>
+{{ if_ML_paid_for }}<br>
+{{ ML_pay_twenfivk }}<br>
+{{ ongoing_payments }}<br>
+{{ ongoing_how_much }}<br>
+{{ ongoing_how_often }}<br>
+{{ we_use_work }}<br>
+{{ do_we_distribute }}<br>
+{{ did_we_host }}<br>
+{{ third_party_host }}<br>
+{{ if_modified }}<br>
+{{ use_generate_code }}<br>
+{{ form_gen_code }}<br>
+{{ how_hard_replace }}<br>
+{{ obligation }}<br>
+{{ additional_comments }}<br>
+{{ requested_by }}<br>
+{{ authorization }}<br>
+{{ date_requested }}<br>
+
+
+{% endblock %}
