@@ -55,6 +55,8 @@ def view_licenses(request, pagenum):
 		# If page is out of range (e.g. 9999), deliver last page of results.
 		current_page = p.page(p.num_pages)
 
+	request.session['prev_page'] = request.build_absolute_uri(None)
+
 	template  = loader.get_template('Base/view_licenses.html') 
 	context   = RequestContext(request, {
 		'auth_session' 		: auth_session,
@@ -65,15 +67,33 @@ def view_licenses(request, pagenum):
 	return HttpResponse(template.render(context))
 
 def view_licenses_search(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
 	query = request.GET.get('search', '')
 	word_list = query.split()
 	name_list = []
 	for license in License.objects.all():
 		if license.authorization == 'accepted' or license.authorization == 'denied':
-			name_list.append(license.software_name)
-			name_list.append(license.license_type)
-			name_list.append(license.requested_by)
+			softname 	= license.software_name
+			licensetype = license.license_type
+			byname		= license.requested_by
+			softname_break 	  = softname.split(' ')
+			licensetype_break = licensetype.split(' ')
+			byname_break 	  = byname.split(' ')
 
+			for word in softname_break:
+				name_list.append(word)
+			for word in byname_break:
+				name_list.append(word)
+			for word in licensetype_break:
+				name_list.append(word)
 
 	successful = []
 	for name in name_list:
@@ -82,9 +102,9 @@ def view_licenses_search(request):
 
 	successful_user = []
 	for match in successful:
-		a = License.objects.filter(software_name = match)
-		b = License.objects.filter(license_type = match)
-		c = License.objects.filter(requested_by = match)
+		a = License.objects.filter(software_name__icontains = match)
+		b = License.objects.filter(license_type__icontains = match)
+		c = License.objects.filter(requested_by__icontains = match)
 		for d in a:	
 			if not d in successful_user: 
 				successful_user.append(d)
@@ -95,7 +115,23 @@ def view_licenses_search(request):
 			if not d in successful_user: 
 				successful_user.append(d)
 
-	return HttpResponse(successful_user)
+	license_list = []
+	for license in successful_user:
+		x = '_license'
+		y = str(license.software_name)
+		z = y+x
+		z = [license.software_name[:20], license.software_version[:12], license.license_type[:15], license.date_requested, license.id, license.authorization]
+		license_list.append(z)
+
+	request.session['prev_page'] = request.build_absolute_uri(None)
+
+	template  = loader.get_template('Base/search_results.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'license_list'		: license_list,
+	})
+	return HttpResponse(template.render(context))
 
 def request_form(request):
 	if 'auth' in request.session:
@@ -617,6 +653,7 @@ def license_detail(request, license_id):
 			'authorization'		  : license.authorization,
 			'date_requested'	  : license.date_requested,
 			'license_id'		  : license.id,
+			'back'				  : request.session['prev_page']
 		})
 		return HttpResponse(template.render(context))
 	else:

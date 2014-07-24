@@ -112,7 +112,7 @@
 	</form>
 
 
-	<form name="back" action="/view_licenses/page_1/" id="back" method="post">{% csrf_token %}</form>
+	<form name="back" action={{ back }} id="back" method="post">{% csrf_token %}</form>
 
 	<br><input style="width:100px" type="submit" value="Change license" form='change_license'>
 	<input style="width:100px" type="submit" value="Back" form='back'>
