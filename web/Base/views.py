@@ -5,6 +5,8 @@ from Login.models import User, User_request
 from django.core.mail import send_mail
 from Base.models import License
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import urllib
+import urllib2
 
 def home(request):
 	if 'auth' in request.session:
@@ -77,34 +79,13 @@ def view_licenses_search(request):
 		approver_session = False
 
 	query = request.GET.get('search', '')
-	word_list = query.split()
-	name_list = []
-	for license in License.objects.all():
-		if license.authorization == 'accepted' or license.authorization == 'denied':
-			softname 	= license.software_name
-			licensetype = license.license_type
-			byname		= license.requested_by
-			softname_break 	  = softname.split(' ')
-			licensetype_break = licensetype.split(' ')
-			byname_break 	  = byname.split(' ')
-
-			for word in softname_break:
-				name_list.append(word)
-			for word in byname_break:
-				name_list.append(word)
-			for word in licensetype_break:
-				name_list.append(word)
-
-	successful = []
-	for name in name_list:
-		if name.lower() in (word.lower() for word in word_list):			
-			successful.append(name)
+	word_list = query.split(' ')
 
 	successful_user = []
-	for match in successful:
-		a = License.objects.filter(software_name__icontains = match)
-		b = License.objects.filter(license_type__icontains = match)
-		c = License.objects.filter(requested_by__icontains = match)
+	for word in word_list:
+		a = License.objects.filter(software_name__iregex = '\\b' + word + '\\b')
+		b = License.objects.filter(license_type__iregex = '\\b' + word + '\\b')
+		c = License.objects.filter(requested_by__iregex = '\\b' + word + '\\b')
 		for d in a:	
 			if not d in successful_user: 
 				successful_user.append(d)
@@ -157,10 +138,18 @@ def request_form(request):
 	})
 	return HttpResponse(template.render(context))
 
-def intermediate_logic(request):
+def additional_information(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
 	software_name 		= request.POST['software_name']
 	software_version 	= request.POST['software_version']
-
 	license_name_list = []
 	license_list = License.objects.all()
 	for license in license_list:
@@ -168,7 +157,6 @@ def intermediate_logic(request):
 			a = license.software_name+"_"+license.software_version
 			license_name_list.append(a)
 	b = software_name+"_"+software_version
-
 
 	if not software_name or not software_version:
 		request.session['request_error'] = 'You did not enter the software name and/or version. Please fill out both boxes.'
@@ -179,33 +167,20 @@ def intermediate_logic(request):
 		return HttpResponseRedirect('/submit_request')
 
 	else:
-		return HttpResponseRedirect('/submit_request/'+software_name+'_version_'+software_version+'/')
+		username = request.session['current_user']
+		user = User.objects.get(username = username)
+		user_name = user.first_name+" "+user.last_name
+		
 
-def additional_information(request, license_name, license_version):
-	if 'auth' in request.session:
-		auth_session = request.session['auth']
-	else:
-		auth_session = False
-	if 'approver' in request.session:
-		approver_session = request.session['approver']
-	else:
-		approver_session = False
-
-	username = request.session['current_user']
-	user = User.objects.get(username = username)
-	user_f_name = user.first_name
-	user_l_name = user.last_name
-
-	template  = loader.get_template('Base/request_form_cont.html') 
-	context   = RequestContext(request, {
-		'current_user_first': user_f_name,
-		'current_user_last': user_l_name,
-		'auth_session' 		: auth_session,
-		'approver_session' 	: approver_session,
-		'software_name' 	: license_name,
-		'software_version' 	: license_version,
-	})
-	return HttpResponse(template.render(context))
+		template  = loader.get_template('Base/request_form_cont.html') 
+		context   = RequestContext(request, {	
+			'requested_by'		: user_name,
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'software_name' 	: software_name,
+			'software_version' 	: software_version,
+		})
+		return HttpResponse(template.render(context))
 
 def request_sent(request):
 	if 'auth' in request.session:
@@ -243,8 +218,7 @@ def request_sent(request):
 	additional_comments = request.POST['additional_comments']
 	software_name 		= request.POST['software_name']
 	software_version 	= request.POST['software_version']
-	requested_by_first	= request.POST['requested_by_first']
-	requested_by_last	= request.POST['requested_by_last']
+	requested_by 		= request.POST['requested_by']
 
 	if ongoing_payments == False:
 		ongoing_how_much = 0
@@ -253,7 +227,6 @@ def request_sent(request):
 		if not ongoing_how_much or not ongoing_how_often:
 			return HttpResponse("One or more fields was left blank. Please press your browser's 'back' button and check all boxes.")
 
-	requested_by = requested_by_first+" "+requested_by_last
 
 	if not licensor_name or not license_type or not copy_of_license or not where_used or not client_where_used or not desc_nature_work or not desc_function_work or not category_of_work or not do_we_distribute or not form_gen_code or not how_hard_replace or not additional_comments or not software_name or not software_version:
 		return HttpResponse("One or more fields was left blank. Please press your browser's 'back' button and check all boxes.")

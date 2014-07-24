@@ -6,7 +6,7 @@
 <span style='color:red'>{{ error }}</span><br><br>
 {% endif %}
 
-<form name="new_license_request" action="{% url 'intermediate_logic' %}" method="post">
+<form name="new_license_request" action="{% url 'additional_information' %}" method="post">
 {% csrf_token %}
 
 Software name:<br>

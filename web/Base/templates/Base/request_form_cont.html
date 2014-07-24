@@ -128,10 +128,9 @@ Additional comments (if any):<br>
 
 <b><p style='color:red'>Check if all non-disabled text fields have text before hitting "submit".</p></b>
 
-<input type="hidden" name="software_name" value = {{ software_name }} >
-<input type="hidden" name="software_version" value = {{ software_version }} >
-<input type="hidden" name="requested_by_first" value = {{ current_user_first }} >
-<input type="hidden" name="requested_by_last" value = {{ current_user_last }} >
+<textarea name='software_name' style="display:none;">{{ software_name }}</textarea>
+<textarea name='software_version' style="display:none;">{{ software_version }}</textarea>
+<textarea name='requested_by' style="display:none;">{{ requested_by }}</textarea>
 
 <input style="width:200px" type="submit" value="Submit"><br><br><br><br>
 

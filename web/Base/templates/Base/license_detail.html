@@ -118,5 +118,35 @@
 	<input style="width:100px" type="submit" value="Back" form='back'>
 <p><font size="2"> All fields are case-sensitive </font></p>
 
+{% else %}
+<p>Requested by <b>{{ requested_by }}</b> on <b>{{ date_requested }}</b></p>
+<p>Software name:		<b>{{ software_name }}</b></p>
+<p>Software version:	<b>{{ software_version }}</b></p>
+<p>Licensor name:		<b>{{ licensor_name }}</b></p>
+<p>License type:		<b>{{ license_type }}</b></p>
+<p>Copy of license:	<br><p style='width:600px; margin-left: 2em'>{{ copy_of_license }}</p>
+<p>Where software is used: <b>{{ where_used }}</b></p>
+<p>Client where softwhere is used: <b>{{ client_where_used }}</b></p>
+<p>Description of the nature of the work: <b>{{ desc_nature_work }}</b></p>
+<p>Description of the function of the work: <b>{{ desc_function_work }}</b></p>
+<p>Category of work: <b>{{ category_of_work }}</b></p>
+<p>Marketlive paid for this software: <b>{% if if_ML_paid_for = True %}<span style="color:green">True</span>{% elif if_ML_paid_for = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Did Marketlive pay $25,000 or more for it?: <b>{% if ML_pay_twenfivk = True %}<span style="color:green">True</span>{% elif ML_pay_twenfivk = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Are ongoing payments expected?: <b>{% if ongoing_payments = True %}<span style="color:green">True</span>{% elif ongoing_payments = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>&emsp;&emsp;If so, how much?: <b>${{ ongoing_how_much }}</b></p>
+<p>&emsp;&emsp;Every <b>{{ ongoing_how_often }}</b> months</p>
+<p>Do we use this work?: <b>{% if we_use_work = True %}<span style="color:green">True</span>{% elif we_use_work = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>How is this work distributed?: <b>{{ do_we_distribute }}</b></p>
+<p>Do we host this software?: <b>{% if did_we_host = True %}<span style="color:green">True</span>{% elif did_we_host = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Do we allow third parties to host this software?: <b>{% if third_party_host = True %}<span style="color:green">True</span>{% elif third_party_host = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Have we modified this software in any way?: <b>{% if if_modified = True %}<span style="color:green">True</span>{% elif if_modified = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Do we use this software to generate code?: <b>{% if use_generate_code = True %}<span style="color:green">True</span>{% elif use_generate_code = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>&emsp;&emsp;If so, in what form is it distributed?: <b>{{ form_gen_code }}</b></p>
+<p>How hard would it be to replace?: <b>{{ how_hard_replace }}</b></p>
+<p>Is this software required for any obligation?: <b>{% if obligation = True %}<span style="color:green">True</span>{% elif obligation = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Additional comments:	<br><p style='width:600px; margin-left: 2em'>{{ additional_comments }}</p><br>
+<p>Status of license: <b>{% if authorization = 'accepted' %}<span style="color:green">Accepted</span>{% elif authorization = 'denied' %}<span style="color:red">Denied</span>{% endif %}</b></p><br>
+
+<p><a href={{ back }}><button style="width:150px"> Back </button></a>
 {% endif %}
 {% endblock %}
