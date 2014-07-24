@@ -17,25 +17,49 @@ padding:5px;
 {% block Title %} View Licenses {% endblock %}
 
 {% block content %}
-Click on a license to view more details<br><br>
+Click on a license to view more details
+{% csrf_token %}
+<form name="search" action="/view_licenses/search/" method="GET" id="license_request_accept">
+<input type='submit' style="float:right">
+<input type='search' name='search' style="float:right; width:200px">
+</form>
+
+<br><br>
 <table style="width:600px">
 <tr href=>
   <th>Software name</th>
   <th>Version</th>		
   <th>License type</th>
   <th>Date requested</th>
+  <th>Auth status</th>
 </tr>
-{% for name, version, type, date in license_list %}
+{% for name, version, type, date, id, auth in license_list %}
 <tr>
-	<td><a href='/license/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ name }}</a></td>
+	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ name }}</a></td>
 
-	<td><a href='/license/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ version }}</a></td>
+	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ version }}</a></td>
 
-	<td><a href='/license/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ type }}</a></td>
+	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ type }}</a></td>
 
-	<td><a href='/license/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ date }}</a></td>
+	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ date }}</a></td>
+
+	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:{% if auth = 'accepted' %}green{% elif auth = 'denied' %}red{% endif %};text-decoration:none">
+	{{ auth }}
+	</a></td>
 
 </tr>
 {% endfor %}
 </table>
+<br>
+{% if current_page.has_previous %}
+<a href="/view_licenses/page_{{ current_page.previous_page_number }}/">Previous</a>&emsp;
+{% endif %}
+
+Page {{ current_page.number }} of {{ current_page.paginator.num_pages }}&emsp;
+
+
+{% if current_page.has_next %}
+<a href="/view_licenses/page_{{ current_page.next_page_number }}/">Next</a>
+{% endif %}
+
 {% endblock %}

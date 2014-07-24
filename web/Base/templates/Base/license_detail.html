@@ -1,1 +1,122 @@
 {% extends "Omega_Template.html" %}
+{% block Title %}{{ software_name }} version {{ software_version }}{% endblock %}
+
+{% block content %}
+{% if approver_session = True %}
+	<form name="change_license" action="/license_changed/" method="post" id="change_license">
+	{% csrf_token %}
+	<p>Requested by <b>{{ requested_by }}</b> on <b>{{ date_requested }}</b></p><br>
+
+	Software name: <br><textarea name="software_name" rows="1" cols="25">{{ software_name }}</textarea><br><br>
+	Software version: <br><textarea name="software_version" rows="1" cols="25">{{ software_version }}</textarea><br><br>
+	Licensor name: <br><textarea name="licensor_name" rows="1" cols="25">{{ licensor_name }}</textarea><br><br>
+	License type: <br><textarea name="license_type" rows="1" cols="25">{{ license_type }}</textarea><br><br>
+	Copy of license: <br><textarea name="copy_of_license" rows="10" cols="80">{{ copy_of_license }}</textarea><br><br>
+	Where it is used: <br><textarea name="where_used" rows="1" cols="25">{{ where_used }}</textarea><br><br>
+	Client where it is used: <br><textarea name="client_where_used" rows="1" cols="25">{{ client_where_used }}</textarea><br><br>
+	Description of the nature of the work: <br><textarea name="desc_nature_work" rows="1" cols="25">{{ desc_nature_work }}</textarea><br><br>
+	Description of the function of the work: <br><textarea name="desc_function_work" rows="1" cols="25">{{ desc_function_work }}</textarea><br><br>
+
+	Category of work: <br>
+	<select name="category_of_work">
+		<option value='None'>None</option>
+		<option value='Application/Web Servers' {% if category_of_work = 'Application/Web Servers' %}selected{% endif %}>Application/Web Servers</option>
+		<option value='Business Applications' {% if category_of_work = 'Business Applications' %}selected{% endif %}>Business Applications</option>
+		<option value='Collaboration/Communication' {% if category_of_work = 'Collaboration/Communication' %}selected{% endif %}>Collaboration/Communication</option>
+		<option value='Data Management/Interaction' {% if category_of_work = 'Data Management/Interaction' %}selected{% endif %}>Data Management/Interaction</option>
+		<option value='Database' {% if category_of_work = 'Database' %}selected{% endif %}>Database</option>
+		<option value='Design' {% if category_of_work = 'Design' %}selected{% endif %}>Design</option>
+		<option value='Development Tools' {% if category_of_work = 'Development Tools' %}selected{% endif %}>Development Tools</option>
+		<option value='Document/Content Management' {% if category_of_work = 'Document/Content Management' %}selected{% endif %}>Document/Content Management</option>
+		<option value='Languages/Frameworks' {% if category_of_work = 'Languages/Frameworks' %}selected{% endif %}>Languages/Frameworks</option>
+		<option value='Networking' {% if category_of_work = 'Networking' %}selected{% endif %}>Networking</option>
+		<option value='Operating Systems/Tools' {% if category_of_work = 'Operating Systems/Tools' %}selected{% endif %}>Operating Systems/Tools</option>
+		<option value='Performance/Scalability' {% if category_of_work = 'Performance/Scalability' %}selected{% endif %}>Performance/Scalability</option>
+		<option value='Project Management' {% if category_of_work = 'Project Management' %}selected{% endif %}>Project Management</option>
+		<option value='Security' {% if category_of_work = 'Security' %}selected{% endif %}>Security</option>
+		<option value='Testing and Diagnostics' {% if category_of_work = 'Testing and Diagnostics' %}selected{% endif %}>Testing and Diagnostics</option>
+		<option value='User Interface' {% if category_of_work = 'User Interface' %}selected{% endif %}>User Interface</option>
+		<option value='Utility/Other' {% if category_of_work = 'Utility/Other' %}selected{% endif %}>Utility/Other</option>
+		<option value='Web Tools' {% if category_of_work = 'Web Tools' %}selected{% endif %}>Web Tools</option>
+	</select><br><br><br>
+
+	Marketlive paid for this software: <input type="checkbox" name="if_ML_paid_for" value=True {% if if_ML_paid_for = True %}checked {% endif %} onchange="this.form.ML_pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked"><br><br>
+
+	&emsp;&emsp;Marketlive paid $25,000 or more for this software: <input type="checkbox" name="ML_pay_twenfivk" value=True {% if ML_pay_twenfivk = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %}><br><br> 
+
+	&emsp;&emsp;Ongoing payments expected: <input type="checkbox" name="ongoing_payments" value=True {% if ongoing_payments = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %} onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked"><br><br> 
+
+	&emsp;&emsp;&emsp;&emsp;Ongoing payments are $<input type="number" name="ongoing_how_much" value={{ongoing_how_much}} {% if not ongoing_payments = True %}disabled {% endif %}><br>
+
+	&emsp;&emsp;&emsp;&emsp;every <input type="number" name="ongoing_how_often" value={{ongoing_how_often}} {% if not ongoing_payments = True %}disabled {% endif %}> months<br><br>
+
+	We use this work: <input type="checkbox" name="we_use_work" value=True {% if we_use_work = True %}checked {% endif %}><br><br>
+
+	Do we distribute this?:<br>
+	<select name="do_we_distribute">
+		<option value='Not Distributed' {% if do_we_distribute = 'Not Distributed' %}selected{% endif %}>Not Distributed</option>
+		<option value='Binary Distribution Only'{% if do_we_distribute = 'Binary Distribution Only' %}selected{% endif %}>Binary Distribution Only</option>
+		<option value='Source Distribution Only'{% if do_we_distribute = 'Source Distribution Only' %}selected{% endif %}>Source Distribution Only</option>
+		<option value='Source and Binary Distribution'{% if do_we_distribute = 'Source and Binary Distribution' %}selected{% endif %}>Source and Binary Distribution</option>
+		<option value='Script Distribution'{% if do_we_distribute = 'Script Distribution' %}selected{% endif %}>Script Distribution</option>
+		<option value='Image / Icon Distribution'{% if do_we_distribute = 'Image / Icon Distribution' %}selected{% endif %}>Image / Icon Distribution</option>
+		<option value='Mark-up Languages Distribution'{% if do_we_distribute = 'Mark-up Languages Distribution' %}selected{% endif %}>Mark-up Languages Distribution</option>
+	</select><br><br>
+
+	We host this software: <input type="checkbox" name="did_we_host" value=True {% if did_we_host = True %}checked {% endif %}><br><br>
+
+	We allow a third party to host this software: <input type="checkbox" name="third_party_host" value=True {% if third_party_host = True %}checked {% endif %}><br><br>
+
+	We have modified this software: <input type="checkbox" name="if_modified" value=True {% if if_modified = True %}checked {% endif %}><br><br>
+
+	We use this software to generate code: <input type="checkbox" name="use_generate_code" value=True {% if use_generate_code = True %}checked {% endif %} onchange="this.form.form_gen_code.disabled =! this.checked"><br><br>
+
+	&emsp;&emsp;
+	What form is the generated code distributed in?: <br>
+	&emsp;&emsp;
+	<select name="form_gen_code" {% if not if_ML_paid_for = True %}disabled {% endif %}>
+		<option value='Not Used to Generate Code' {% if form_gen_code = 'Not used to generate code' %}selected{% endif %}>Not Used to Generate Code</option>
+		<option value='Not Distributed' {% if form_gen_code = 'Not Distributed' %}selected{% endif %}>Not Distributed</option>
+		<option value='Binary Distribution Only'{% if form_gen_code = 'Binary Distribution Only' %}selected{% endif %}>Binary Distribution Only</option>
+		<option value='Source Distribution Only'{% if form_gen_code = 'Source Distribution Only' %}selected{% endif %}>Source Distribution Only</option>
+		<option value='Source and Binary Distribution'{% if form_gen_code = 'Source and Binary Distribution' %}selected{% endif %}>Source and Binary Distribution</option>
+		<option value='Script Distribution'{% if form_gen_code = 'Script Distribution' %}selected{% endif %}>Script Distribution</option>
+		<option value='Image / Icon Distribution'{% if form_gen_code = 'Image / Icon Distribution' %}selected{% endif %}>Image / Icon Distribution</option>
+		<option value='Mark-up Languages Distribution'{% if form_gen_code = 'Mark-up Languages Distribution' %}selected{% endif %}>Mark-up Languages Distribution</option>
+	</select><br><br>
+
+	How hard would this software be to replace?:<br>
+	<select name="how_hard_replace">
+		<option value='Trivial' {% if how_hard_replace = 'Trivial' %}selected{% endif %}>Trivial</option>
+		<option value='Medium' {% if how_hard_replace = 'Medium' %}selected{% endif %}>Medium</option>
+		<option value='Hard' {% if how_hard_replace = 'Hard' %}selected{% endif %}>Hard</option>
+		<option value='Nearly Impossible' {% if how_hard_replace = 'Nearly Impossible' %}selected{% endif %}>Nearly Impossible</option>
+	</select><br><br>
+
+	Is this software required to meet any obligation?:
+	<input type="checkbox" name="obligation" value=True {% if obligation = True %}checked {% endif %}><br><br>
+
+	Additional comments:<br>
+	<textarea name="additional_comments" id="additional_comments" rows="5" cols="80">{{ additional_comments }}</textarea><br><br>
+
+	<input type="hidden" name="license_id" value={{ license_id }}>
+	
+	<b>License status:<br>
+	<label for='accepted'>Accepted</label>
+	<input type="radio" name="authorization" id='accepted' value='accepted' {% if authorization = 'accepted' %}checked{% endif %}>&emsp;
+	<label for='denied'>Denied</label>
+	<input type="radio" name="authorization" id='denied' value='denied' {% if authorization = 'denied' %}checked{% endif %}>&emsp;
+	<label for='none'>Request</label>
+	<input type="radio" name="authorization" id='none' value='none' {% if authorization = 'none' %}checked{% endif %}>&emsp;
+	</b>
+	</form>
+
+
+	<form name="back" action="/view_licenses/page_1/" id="back" method="post">{% csrf_token %}</form>
+
+	<br><input style="width:100px" type="submit" value="Change license" form='change_license'>
+	<input style="width:100px" type="submit" value="Back" form='back'>
+<p><font size="2"> All fields are case-sensitive </font></p>
+
+{% endif %}
+{% endblock %}

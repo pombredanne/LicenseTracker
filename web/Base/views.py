@@ -4,9 +4,9 @@ from django.template import RequestContext, loader
 from Login.models import User, User_request
 from django.core.mail import send_mail
 from Base.models import License
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def home(request):
-
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
 	else:
@@ -26,9 +26,7 @@ def home(request):
 	else:
 		return HttpResponseRedirect('/login')
 	
-
-
-def view_licenses(request):
+def view_licenses(request, pagenum):
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
 	else:
@@ -39,42 +37,65 @@ def view_licenses(request):
 		approver_session = False
 
 	license_list = []
-	for license in License.objects.order_by('date_requested'):
-		if license.authorization == "accepted":
+	for license in License.objects.extra( select={'lower_name':'lower(software_name)'}).order_by('lower_name'):
+		if license.authorization == "accepted" or license.authorization == 'denied':
 			a = '_license'
 			b = str(license.software_name)
 			c = b+a
-			c = [license.software_name, license.software_version, license.license_type, license.date_requested]
+			c = [license.software_name[:20], license.software_version[:12], license.license_type[:15], license.date_requested, license.id, license.authorization]
 			license_list.append(c)
+
+	p = Paginator(license_list, 20)
+	try:
+		current_page = p.page(pagenum)
+	except PageNotAnInteger:
+		# If page is not an integer, deliver first page.
+		current_page = p.page(1)
+	except EmptyPage:
+		# If page is out of range (e.g. 9999), deliver last page of results.
+		current_page = p.page(p.num_pages)
 
 	template  = loader.get_template('Base/view_licenses.html') 
 	context   = RequestContext(request, {
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
-		'license_list'		: license_list,
+		'license_list'		: current_page.object_list,
+		'current_page'		: current_page,
 	})
 	return HttpResponse(template.render(context))
 
+def view_licenses_search(request):
+	query = request.GET.get('search', '')
+	word_list = query.split()
+	name_list = []
+	for license in License.objects.all():
+		if license.authorization == 'accepted' or license.authorization == 'denied':
+			name_list.append(license.software_name)
+			name_list.append(license.license_type)
+			name_list.append(license.requested_by)
 
 
-def license_detail(request, license_name, license_version):
-	if 'auth' in request.session:
-		auth_session = request.session['auth']
-	else:
-		auth_session = False
-	if 'approver' in request.session:
-		approver_session = request.session['approver']
-	else:
-		approver_session = False
+	successful = []
+	for name in name_list:
+		if name.lower() in (word.lower() for word in word_list):			
+			successful.append(name)
 
-	template  = loader.get_template('Base/license_detail.html') 
-	context   = RequestContext(request, {
-		'auth_session' : auth_session,
-		'approver_session' 	: approver_session,
-	})
-	return HttpResponse(template.render(context))
+	successful_user = []
+	for match in successful:
+		a = License.objects.filter(software_name = match)
+		b = License.objects.filter(license_type = match)
+		c = License.objects.filter(requested_by = match)
+		for d in a:	
+			if not d in successful_user: 
+				successful_user.append(d)
+		for d in b:	
+			if not d in successful_user: 
+				successful_user.append(d)
+		for d in c:	
+			if not d in successful_user: 
+				successful_user.append(d)
 
-
+	return HttpResponse(successful_user)
 
 def request_form(request):
 	if 'auth' in request.session:
@@ -123,8 +144,6 @@ def intermediate_logic(request):
 
 	else:
 		return HttpResponseRedirect('/submit_request/'+software_name+'_version_'+software_version+'/')
-
-
 
 def additional_information(request, license_name, license_version):
 	if 'auth' in request.session:
@@ -220,8 +239,11 @@ def request_sent(request):
 	if approver_session != True:
 		for admin in User.objects.all():
 				if admin.approver_status == True:
-					send_mail('New license request on OpenSource site', admin.username + ",\n    There is a new license request for software "+new_license.software_name+" version "+new_license.software_version+" on the Marketlive OpenSource site, requested by "+new_license.requested_by+". Please log in to accept or decline this request.",
+					try:
+						send_mail('New license request on OpenSource site', admin.username + ",\n    There is a new license request for software "+new_license.software_name+" version "+new_license.software_version+" on the Marketlive OpenSource site, requested by "+new_license.requested_by+". Please log in to accept or decline this request.",
 							  'wolfa97@comcast.net', [admin.email], fail_silently = False)
+					except SMTPRecipientsRefused:
+						pass
 
 	template  = loader.get_template('Base/request_sent.html') 
 	context   = RequestContext(request, {
@@ -229,8 +251,7 @@ def request_sent(request):
 		'approver_session' 	: approver_session,
 
 	})
-	return HttpResponse(template.render(context))
-	
+	return HttpResponse(template.render(context))	
 
 def user_requests(request):
 	if 'auth' in request.session:
@@ -302,8 +323,6 @@ def user_request_detail(request, viewed_username):
 		})
 		return HttpResponse(template.render(context))
 
-
-
 def user_approved(request):
 	unaltered_username = request.POST['request_unalt_username']
 	new_username       = request.POST['request_username']
@@ -327,9 +346,12 @@ def user_approved(request):
 
 	new_user.save()
 
-	send_mail('User request on OpenSource website accepted', new_user.first_name +" "+ new_user.last_name + ",\n    " + 
+	try:
+		send_mail('User request on OpenSource website accepted', new_user.first_name +" "+ new_user.last_name + ",\n    " + 
 			  "Your request to become an authorized user on the Marketlive OpenSource website was accepted. Username: "+
 			  new_user.username+", Password: "+new_user.password+".", 'wolfa97@comcast.net', [new_user.email], fail_silently = False)
+	except SMTPRecipientsRefused:
+		pass
 
 	old_request = User_request.objects.get(username = unaltered_username)
 	old_request.delete()
@@ -343,8 +365,6 @@ def user_approved(request):
 		'new_approverstatus' : new_approverstatus,
 	})
 	return HttpResponse(template.render(context))
-
-
 
 def user_denied(request):
 	new_username = request.POST['request_username']
@@ -374,7 +394,7 @@ def license_requests(request):
 			a = '_license'
 			b = str(lrequest.software_name)
 			c = b+a
-			c = [lrequest.software_name, lrequest.software_version, lrequest.license_type, lrequest.date_requested, lrequest.id]
+			c = [lrequest.software_name[:20], lrequest.software_version[:12], lrequest.license_type[:15], lrequest.date_requested, lrequest.id]
 			license_list.append(c)
 
 	if auth_session == True:
@@ -545,6 +565,144 @@ def license_denied(request):
 	denied_license.authorization = 'denied'
 	denied_license.save()
 	template  = loader.get_template('Base/license_denied.html') 
+	context   = RequestContext(request, {
+		'auth_session'   	: auth_session,
+		'approver_session' 	: approver_session,
+	})
+	return HttpResponse(template.render(context))
+
+def license_detail(request, license_id):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	
+	license = License.objects.get(id = license_id)
+
+	if auth_session == True:
+		template  = loader.get_template('Base/license_detail.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		  : auth_session,
+			'approver_session'	  : approver_session,
+			'software_name'		  : license.software_name,
+			'software_version'	  : license.software_version,
+			'licensor_name'		  : license.licensor_name,
+			'license_type'		  : license.license_type,
+			'copy_of_license'	  : license.copy_of_license,
+			'where_used'		  : license.where_used,
+			'client_where_used'	  : license.client_where_used,
+			'desc_nature_work'	  : license.desc_nature_work,
+			'desc_function_work'  : license.desc_function_work,
+			'category_of_work'	  : license.category_of_work,
+			'if_ML_paid_for'	  : license.if_ML_paid_for,
+			'ML_pay_twenfivk'	  : license.ML_pay_twenfivk,
+			'ongoing_payments'	  : license.ongoing_payments,
+			'ongoing_how_much'	  : license.ongoing_how_much,
+			'ongoing_how_often'	  : license.ongoing_how_often,
+			'we_use_work'		  : license.we_use_work,
+			'do_we_distribute'	  : license.do_we_distribute,
+			'did_we_host'		  : license.did_we_host,
+			'third_party_host'	  : license.third_party_host,
+			'if_modified'		  : license.if_modified,
+			'use_generate_code'	  : license.use_generate_code,
+			'form_gen_code'		  : license.form_gen_code,
+			'how_hard_replace'	  : license.how_hard_replace,
+			'obligation'		  : license.obligation,
+			'additional_comments' : license.additional_comments,
+			'requested_by'		  : license.requested_by,
+			'authorization'		  : license.authorization,
+			'date_requested'	  : license.date_requested,
+			'license_id'		  : license.id,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
+def license_changed(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
+	licensor_name 		= request.POST['licensor_name']
+	license_type 		= request.POST['license_type']
+	copy_of_license 	= request.POST['copy_of_license']
+	where_used 			= request.POST['where_used']
+	client_where_used	= request.POST['client_where_used']
+	desc_nature_work	= request.POST['desc_nature_work']
+	desc_function_work 	= request.POST['desc_function_work']
+	category_of_work 	= request.POST['category_of_work']
+	if_ML_paid_for 		= request.POST.get('if_ML_paid_for', False)
+	ML_pay_twenfivk 	= request.POST.get('ML_pay_twenfivk', False)
+	ongoing_payments	= request.POST.get('ongoing_payments', False)
+	if ongoing_payments:	
+		ongoing_how_much 	= request.POST['ongoing_how_much']
+		ongoing_how_often 	= request.POST['ongoing_how_often']
+	we_use_work 		= request.POST.get('we_use_work', False)
+	do_we_distribute 	= request.POST['do_we_distribute']
+	did_we_host 		= request.POST.get('did_we_host', False)
+	third_party_host 	= request.POST.get('third_party_host', False)
+	if_modified 		= request.POST.get('if_modified', False)
+	use_generate_code 	= request.POST.get('use_generate_code', False)
+	if use_generate_code:
+		form_gen_code 		= request.POST['form_gen_code']
+	how_hard_replace 	= request.POST['how_hard_replace']
+	obligation 			= request.POST.get('obligation', False)
+	additional_comments = request.POST['additional_comments']
+	software_name 		= request.POST['software_name']
+	software_version 	= request.POST['software_version']
+	license_id			= request.POST['license_id']
+	authorization		= request.POST['authorization']
+
+	if not ongoing_payments:	
+		ongoing_how_much = 0
+		ongoing_how_often = 0
+
+	if not use_generate_code:
+		form_gen_code = 'Not Used to Generate Code'
+
+	if not licensor_name or not license_type or not copy_of_license or not where_used or not client_where_used or not desc_nature_work or not desc_function_work or not category_of_work or not do_we_distribute or not form_gen_code or not how_hard_replace or not additional_comments or not software_name or not software_version:
+		return HttpResponse("One or more fields was left blank. Please press your browser's 'back' button and check all boxes.")
+
+	altered_license = License.objects.get(id = license_id)
+
+	altered_license.licensor_name 		= licensor_name
+	altered_license.license_type 		= license_type
+	altered_license.copy_of_license 	= copy_of_license
+	altered_license.where_used 			= where_used
+	altered_license.client_where_used 	= client_where_used
+	altered_license.desc_nature_work 	= desc_nature_work
+	altered_license.desc_function_work 	= desc_function_work
+	altered_license.category_of_work 	= category_of_work
+	altered_license.if_ML_paid_for 		= if_ML_paid_for
+	altered_license.ML_pay_twenfivk 	= ML_pay_twenfivk
+	altered_license.ongoing_payments 	= ongoing_payments
+	altered_license.ongoing_how_much 	= ongoing_how_much
+	altered_license.ongoing_how_often 	= ongoing_how_often
+	altered_license.we_use_work 		= we_use_work
+	altered_license.do_we_distribute 	= do_we_distribute
+	altered_license.did_we_host 		= did_we_host
+	altered_license.third_party_host 	= third_party_host
+	altered_license.if_modified 		= if_modified
+	altered_license.use_generate_code	= use_generate_code
+	altered_license.form_gen_code 		= form_gen_code
+	altered_license.how_hard_replace 	= how_hard_replace
+	altered_license.obligation 			= obligation
+	altered_license.additional_comments = additional_comments
+	altered_license.software_name 		= software_name
+	altered_license.software_version 	= software_version
+	altered_license.authorization 		= authorization
+	altered_license.save()
+
+	template  = loader.get_template('Base/license_changed.html') 
 	context   = RequestContext(request, {
 		'auth_session'   	: auth_session,
 		'approver_session' 	: approver_session,

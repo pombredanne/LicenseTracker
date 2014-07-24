@@ -7,27 +7,27 @@
 {% csrf_token %}
 
 Licensor name:<br>
-<input type="text" name="licensor_name"><br><br>
+<input type="text" name="licensor_name" autocomplete="off"><br><br>
 
 License type:<br>
-<input type="text" name="license_type"><br><br>
+<input type="text" name="license_type" autocomplete="off"><br><br>
 
 Copy of license:<br>
 <textarea name="copy_of_license" id="copy_of_license" rows="10" cols="80"></textarea><br><br>
 
 Where software is used: <br>
-<input type="text" name="where_used"><br>
+<input type="text" name="where_used" autocomplete="off"><br>
 Admin, B2C, CCOM, etc.<br><br>
 
 Client where software is used: <br>
-<input type="text" name="client_where_used"><br>
+<input type="text" name="client_where_used" autocomplete="off"><br>
 Can be "none" or "all"<br><br>
 
 Brief description of the nature of the work:<br>
-<input type="text" name="desc_nature_work"><br><br>
+<input type="text" name="desc_nature_work" autocomplete="off"><br><br>
 
 Brief description of the function of the work:<br>
-<input type="text" name="desc_function_work"><br><br>
+<input type="text" name="desc_function_work" autocomplete="off"><br><br>
 
 Category of work:<br>
 <select name="category_of_work">
@@ -65,12 +65,12 @@ Did Marketlive pay for this license?:
 
 
 &emsp;&emsp;&emsp;&emsp;How much?: $
-<input type="number" name="ongoing_how_much" disabled=true><br><br>
+<input type="number" name="ongoing_how_much" disabled=true autocomplete="off"><br><br>
 
 
 
 &emsp;&emsp;&emsp;&emsp;How often?:
-<input type="number" name="ongoing_how_often" disabled=true>months<br><br>
+<input type="number" name="ongoing_how_often" disabled=true autocomplete="off">months<br><br>
 
 
 
@@ -102,15 +102,15 @@ Do we use this software to generate code?:
 
 &emsp;&emsp;If yes, what form is it distributed in?:<br>
 &emsp;&emsp;<select name="form_gen_code">
-							<option value='Not Used to Generate Code'>Not Used to Generate Code</option>
-							<option value='Not Distributed'>Not Distributed</option>
-							<option value='Binary Distribution Only'>Binary Distribution Only</option>
-							<option value='Source Distribution Only'>Source Distribution Only</option>
-							<option value='Source and Binary Distribution'>Source and Binary Distribution</option>
-							<option value='Script Distribution'>Script Distribution</option>
-							<option value='Image / Icon Distribution'>Image / Icon Distribution</option>
-							<option value='Mark-up Languages Distribution'>Mark-up Languages Distribution</option>
-						</select><br><br>
+				<option value='Not Used to Generate Code'>Not Used to Generate Code</option>
+				<option value='Not Distributed'>Not Distributed</option>
+				<option value='Binary Distribution Only'>Binary Distribution Only</option>
+				<option value='Source Distribution Only'>Source Distribution Only</option>
+				<option value='Source and Binary Distribution'>Source and Binary Distribution</option>
+				<option value='Script Distribution'>Script Distribution</option>
+				<option value='Image / Icon Distribution'>Image / Icon Distribution</option>
+				<option value='Mark-up Languages Distribution'>Mark-up Languages Distribution</option>
+			</select><br><br>
 
 How hard would this software be to replace?<br>
 <select name="how_hard_replace">
