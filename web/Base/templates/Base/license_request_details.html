@@ -70,12 +70,12 @@ We allow a third party to host this software: <input type="checkbox" name="third
 
 We have modified this software: <input type="checkbox" name="if_modified" value=True {% if if_modified = True %}checked {% endif %}><br><br>
 
-We use this software to generate code: <input type="checkbox" name="use_generate_code" value=True {% if use_generate_code = True %}checked {% endif %} onchange="this.form.form_gen_code.disabled =! this.checked"><br><br>
+We use this software to generate code: <input type="checkbox" name="use_generate_code" value=True {% if use_generate_code = True %}checked {% endif %}><br><br>
 
 &emsp;&emsp;
 What form is the generated code distributed in?: <br>
 &emsp;&emsp;
-<select name="form_gen_code" {% if not if_ML_paid_for = True %}disabled {% endif %}>
+<select name="form_gen_code">
 	<option value='Not Used to Generate Code' {% if form_gen_code = 'Not used to generate code' %}selected{% endif %}>Not Used to Generate Code</option>
 	<option value='Not Distributed' {% if form_gen_code = 'Not Distributed' %}selected{% endif %}>Not Distributed</option>
 	<option value='Binary Distribution Only'{% if form_gen_code = 'Binary Distribution Only' %}selected{% endif %}>Binary Distribution Only</option>

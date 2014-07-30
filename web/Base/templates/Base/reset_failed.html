@@ -1,0 +1,8 @@
+{% extends 'Omega_Template.html' %}
+{% block Title %}
+Reset Failed
+{% endblock %}
+
+{% block content %}
+Your attempt to reset {{ first }} {{ last }}'s password has failed, as the email containing the new password failed to send. Check to see if the recipient has a valid email address, and try again later.
+{% endblock %}

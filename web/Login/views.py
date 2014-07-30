@@ -34,9 +34,12 @@ def testo(request):
 		active_user = User.objects.get(username = entered_name)
 		if active_user.password == entered_password:
 			request.session['auth'] = True
-			request.session['current_user'] = active_user.username
-			template = loader.get_template('Login/login_success.html')
+			request.session['current_user'] = active_user.id
 			request.session['approver'] = active_user.approver_status
+			if active_user.password_reset == True:
+				return HttpResponseRedirect('/password/change/')
+			else:
+				return HttpResponseRedirect('/')
 		else:
 			request.session['auth'] = False
 			template = loader.get_template('Login/login_failed.html')

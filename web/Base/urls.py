@@ -26,5 +26,8 @@ urlpatterns = patterns('',
 	
 	url(r'^password/view_requests/$', views.password_requests, name = 'password_requests'),
 	url(r'^password/request/(?P<pass_id>\d+)/', views.password_request_detail, name = 'password_request_detail'),
-
+	url(r'^password/request/approved/$', views.password_request_approve, name = 'password_request_approve'),
+	url(r'^password/request/denied/$', views.password_request_deny, name = 'password_request_deny'),
+	url(r'^password/change/$', views.change_password, name = 'change_password'),
+	url(r'^password/changed/$', views.password_changed, name = 'password_changed'),
 )

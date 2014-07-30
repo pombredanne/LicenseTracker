@@ -5,6 +5,8 @@ from Login.models import User, User_request, Pass_reset
 from django.core.mail import send_mail
 from Base.models import License
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import string
+import random
 
 def home(request):
 	if 'auth' in request.session:
@@ -165,8 +167,8 @@ def additional_information(request):
 		return HttpResponseRedirect('/license/request')
 
 	else:
-		username = request.session['current_user']
-		user = User.objects.get(username = username)
+		user_id = request.session['current_user']
+		user = User.objects.get(id = user_id)
 		user_name = user.first_name+" "+user.last_name
 		
 
@@ -768,10 +770,152 @@ def password_request_detail(request, pass_id):
 			'user_last'			: a.user.last_name,
 			'username'			: a.user.username,
 			'request_text'		: a.text,
+			'request_id'		: a.id,
 		})
 		return HttpResponse(template.render(context))
 	else:
 		return HttpResponseRedirect('/login')
+
+def password_request_approve(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
+	request_id = request.POST['request_id']
+	prequest = Pass_reset.objects.get(id = request_id)
+	user 	= prequest.user
+
+	user.password_reset = True
+
+	lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(8)]
+	new_pass_upper = "".join(lst)
+	new_pass = new_pass_upper.lower()
+
+	user.password = new_pass
+	
+	try:
+		send_mail('Password reset on OpenSource website', user.first_name +" "+ user.last_name + ",\n    " + 
+			"Your password reset request has been accepted, and your password has been reset. Please log on using username: "
+			+user.username+" and password: "+new_pass+" to choose a new password.", 'wolfa97@comcast.net', [user.email], fail_silently = False)
+		user.save()
+		prequest.delete()
+	except SMTPRecipientsRefused:
+		template  = loader.get_template('Base/reset_failed.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'first'				: user.first_name,
+			'last'				: user.last_name, 
+		})
+		return HttpResponse(template.render(context))
+
+	if auth_session == True:
+		template  = loader.get_template('Base/password_reset.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
+def password_request_deny(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
+	request_id = request.POST['request_id']
+
+	prequest = Pass_reset.objects.get(id = request_id)
+	user = prequest.user
+	prequest.delete()
+
+	try:
+		send_mail('Password reset denied', user.first_name +" "+ user.last_name + ",\n    " + 
+			"Your password reset request has been denied. If you still cannot remember your password, contact an approver and send another request.", 'wolfa97@comcast.net', [user.email], fail_silently = False)
+	except SMTPRecipientsRefused:
+		pass
+
+	if auth_session == True:
+		template  = loader.get_template('Base/reset_denied.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'first'				: user.first_name,
+			'last'				: user.last_name,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
+def change_password(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	if 'pass_error' in request.session:
+		error = request.session['pass_error']
+		request.session['pass_error'] = False
+	else:
+		error = False
+
+	if auth_session == True:
+		template  = loader.get_template('Base/change_password.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'error'				: error,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
+def password_changed(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	
+	user_id = request.session['current_user']
+	user = User.objects.get(id = user_id)
+	password = request.POST['password']
+	confirm_password = request.POST['confirm_password']
+
+	
+	if password != confirm_password:
+		request.session['pass_error'] = 'Passwords did not match.'
+		return HttpResponseRedirect('/password/change/')
+	else:
+		user.password = password
+		user.password_reset = False
+		user.save()
+		if auth_session == True:
+			template  = loader.get_template('Base/password_changed.html') 
+			context   = RequestContext(request, {
+				'auth_session' 		: auth_session,
+				'approver_session' 	: approver_session,
+			})
+			return HttpResponse(template.render(context))
+		else:
+			return HttpResponseRedirect('/login')
 
 #def template_view(request):
 	#if 'auth' in request.session:
