@@ -1,12 +1,10 @@
 from django.views.generic import View
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
-from Login.models import User, User_request
+from Login.models import User, User_request, Pass_reset
 from django.core.mail import send_mail
 from Base.models import License
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import urllib
-import urllib2
 
 def home(request):
 	if 'auth' in request.session:
@@ -27,7 +25,7 @@ def home(request):
 		return HttpResponse(template.render(context))
 	else:
 		return HttpResponseRedirect('/login')
-	
+
 def view_licenses(request, pagenum):
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
@@ -160,11 +158,11 @@ def additional_information(request):
 
 	if not software_name or not software_version:
 		request.session['request_error'] = 'You did not enter the software name and/or version. Please fill out both boxes.'
-		return HttpResponseRedirect('/submit_request')
+		return HttpResponseRedirect('/license/request')
 
 	elif b in license_name_list:
 		request.session['request_error'] = 'There is an existing accepted request for this software and version.'
-		return HttpResponseRedirect('/submit_request')
+		return HttpResponseRedirect('/license/request')
 
 	else:
 		username = request.session['current_user']
@@ -260,7 +258,7 @@ def request_sent(request):
 		'approver_session' 	: approver_session,
 
 	})
-	return HttpResponse(template.render(context))	
+	return HttpResponse(template.render(context))
 
 def user_requests(request):
 	if 'auth' in request.session:
@@ -348,7 +346,7 @@ def user_approved(request):
 
 
 	if not new_username or not new_firstname or not new_lastname or not new_email or not new_password:
-		return HttpResponseRedirect('/user_requests')
+		return HttpResponseRedirect('/user/view_requests')
 	else:
 		new_user = User(username = new_username, first_name = new_firstname, last_name = new_lastname,
 		email = new_email, password = new_password, approver_status = new_approverstatus)
@@ -718,6 +716,62 @@ def license_changed(request):
 		'approver_session' 	: approver_session,
 	})
 	return HttpResponse(template.render(context))
+
+def password_requests(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	
+	user_list = []
+	for prequest in Pass_reset.objects.all():
+			a = 'user_'
+			b = str(prequest.user.username)
+			c = a+b
+			c = [prequest.user.username, prequest.user.first_name, prequest.user.last_name, prequest.id]
+			user_list.append(c)
+	
+	if auth_session == True:
+		template  = loader.get_template('Base/password_requests.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'user_list'			: user_list,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
+def password_request_detail(request, pass_id):
+	a = Pass_reset.objects.get(id = pass_id)
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	
+	a = Pass_reset.objects.get(id = pass_id)
+	
+	if auth_session == True:
+		template  = loader.get_template('Base/password_request_detail.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'user_first'		: a.user.first_name,
+			'user_last'			: a.user.last_name,
+			'username'			: a.user.username,
+			'request_text'		: a.text,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
 
 #def template_view(request):
 	#if 'auth' in request.session:

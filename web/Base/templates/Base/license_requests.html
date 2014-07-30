@@ -27,13 +27,13 @@ Click on a license to view more details<br><br>
 </tr>
 {% for name, version, type, date, id in license_list %}
 <tr>
-	<td><a href='/license_request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ name }}</a></td>
+	<td><a href='/license/request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ name }}</a></td>
 
-	<td><a href='/license_request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ version }}</a></td>
+	<td><a href='/license/request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ version }}</a></td>
 
-	<td><a href='/license_request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ type }}</a></td>
+	<td><a href='/license/request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ type }}</a></td>
 
-	<td><a href='/license_request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ date }}</a></td>
+	<td><a href='/license/request/{{ id }}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ date }}</a></td>
 
 </tr>
 {% endfor %}

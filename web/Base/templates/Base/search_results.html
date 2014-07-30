@@ -19,7 +19,7 @@ padding:5px;
 {% block content %}
 Click on a license to view more details
 {% csrf_token %}
-<form name="search" action="/view_licenses/search/" method="GET" id="license_request_accept">
+<form name="search" action="{% url 'view_licenses_search' }" method="GET" id="license_request_accept">
 <input type='submit' style="float:right">
 <input type='search' name='search' style="float:right; width:200px">
 </form>
@@ -35,15 +35,15 @@ Click on a license to view more details
 </tr>
 {% for name, version, type, date, id, auth in license_list %}
 <tr>
-	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ name }}</a></td>
+	<td><a href='/license/view/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ name }}</a></td>
 
-	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ version }}</a></td>
+	<td><a href='/license/view/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ version }}</a></td>
 
-	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ type }}</a></td>
+	<td><a href='/license/view/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ type }}</a></td>
 
-	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ date }}</a></td>
+	<td><a href='/license/view/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:black;text-decoration:none">{{ date }}</a></td>
 
-	<td><a href='/license/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:{% if auth = 'accepted' %}green{% elif auth = 'denied' %}red{% endif %};text-decoration:none">
+	<td><a href='/license/view/{{id}}/{{name}}_version_{{version}}/' style="display:block;color:{% if auth = 'accepted' %}green{% elif auth = 'denied' %}red{% endif %};text-decoration:none">
 	{{ auth }}
 	</a></td>
 

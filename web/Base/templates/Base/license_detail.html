@@ -3,7 +3,7 @@
 
 {% block content %}
 {% if approver_session = True %}
-	<form name="change_license" action="/license_changed/" method="post" id="change_license">
+	<form name="change_license" action="{% url 'license_changed' %}" method="post" id="change_license">
 	{% csrf_token %}
 	<p>Requested by <b>{{ requested_by }}</b> on <b>{{ date_requested }}</b></p><br>
 

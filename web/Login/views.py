@@ -2,9 +2,8 @@ from django.views.generic import View
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext, loader
-from Login.models import User
 from django.core.urlresolvers import reverse
-from Login.models import User, User_request
+from Login.models import User, User_request, Pass_reset
 from django.core.mail import send_mail
 
 def login(request):
@@ -134,3 +133,43 @@ def logout(request):
 	request.session['auth']         = False
 	request.session['approver']		= False
 	return HttpResponseRedirect('/login')
+
+def forgot_password(request):
+	if 'forgot_error' in request.session:
+		error_message = request.session['forgot_error']
+		del request.session['forgot_error']
+	else: 
+		error_message = False
+	template  = loader.get_template('Login/forgot_password.html') 
+	context   = RequestContext(request, {
+		'error': error_message,
+	})
+	return HttpResponse(template.render(context))
+
+def password_request_sent(request):
+	username = request.POST['username']
+	comments = request.POST['comments']
+
+	if not comments or comments == 'Any comments?':
+		comments = 'No comments'
+
+	userlist = []
+	for usr in User.objects.all():
+		userlist.append(usr.username)
+
+	if username in userlist:
+		a = User.objects.get(username = username)
+		b = Pass_reset(user = a, text = comments)
+		b.save()
+		template  = loader.get_template('Login/password_request_sent.html') 
+		context   = RequestContext(request, {
+			'user': b,
+		})
+		return HttpResponse(template.render(context))
+
+	elif not username:
+		request.session['forgot_error'] = 'You did not type in a username'
+		return HttpResponseRedirect('/login/forgot_password')
+	else:
+		request.session['forgot_error'] = 'There are no users with that username'
+		return HttpResponseRedirect('/login/forgot_password')

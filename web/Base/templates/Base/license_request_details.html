@@ -4,7 +4,7 @@
 {% block Title %}{{ software_name }} version {{ software_version }} request {% endblock %}
 
 {% block content %}
-<form name="license_request_approve" action="/license_approved/" method="post" id="license_request_accept">
+<form name="license_request_approve" action="{% url 'license_approved' %}" method="post" id="license_request_accept">
 {% csrf_token %}
 <p>Requested by <b>{{ requested_by }}</b> on <b>{{ date_requested }}</b></p><br>
 
@@ -103,10 +103,10 @@ Additional comments:<br>
 <input type="hidden" name="license_id" value={{ license_id }}>
 </form>
 
-<form name="license_request_deny" id="license_request_deny" action="/license_denied/" method="post">{% csrf_token %}
+<form name="license_request_deny" id="license_request_deny" action="{% url 'license_denied' %}" method="post">{% csrf_token %}
 <input type="hidden" name="license_id" value={{ license_id }}></form>
 
-<form name="back" action="/license_requests/" id="back" method="post">{% csrf_token %}</form>
+<form name="back" action="{% url 'license_requests' %}" id="back" method="post">{% csrf_token %}</form>
 
 <input style="width:100px" type="submit" value="Approve" form='license_request_accept'>
 <input style="width:100px" type="submit" value="Deny" form='license_request_deny'>

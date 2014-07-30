@@ -3,7 +3,7 @@
 {% block Title %}{{ user_request_firstname}} {{ user_request_lastname }} {% endblock %}
 
 {% block content %}
-<form name="user_request_approve" action="/user_approved/" method="post">
+<form name="user_request_approve" action="{% url 'user_approved' %}" method="post">
 {% csrf_token %}
 Username: <input type="text" name="request_username" value = {{ user_request_username }} ><br>
 First name: <input type="text" name="request_first_name" value = {{ user_request_firstname }} ><br>
@@ -21,7 +21,7 @@ Approver Status:<br>
 
 <br>
 
-<form name="user_request_deny" action="/user_denied/" method="post">
+<form name="user_request_deny" action="{% url 'user_denied' %}" method="post">
 {% csrf_token %}
 <input type="hidden" name="request_username" value = {{ user_request_username }} >
 <input type="submit" value="Deny" />
@@ -29,7 +29,7 @@ Approver Status:<br>
 
 <br>
 
-<form name="user_request_back" action="/user_requests" method="get">
+<form name="user_request_back" action="{% url 'user_requests' %}" method="get">
 <input type="submit" value="Back" />
 </form>
 

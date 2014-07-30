@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <h2>Login</h2>
-<form name="index" action="/login/complete/" method="post">
+<form name="index" action="{% url 'complete' %}" method="post">
 {% csrf_token %}
 Username: <input type="text" name="typed_username"><br>
 Password: <input type="password" name="typed_password"><br>
@@ -13,3 +13,4 @@ Password: <input type="password" name="typed_password"><br>
 {% if auth_session = True %}
 <p> You are already logged in. Click <a href='/'> here</a> to go to the home page.</p>
 {% endif %}
+<p><a href="{% url 'new_user' %}"> New user? </a></p>
