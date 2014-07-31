@@ -6,8 +6,8 @@
 <h3>Unanswered requests:</h3>
 <ul>
 
-{% for user, first, last in user_list %}
-<li><a href=/user/request/{{ user }}/> {{ first }} {{ last }} </a></li>
+{% for user, first, last, id in user_list %}
+<li><a href=/user/request/{{ id }}/{{ user }}/> {{ first }} {{ last }} </a></li>
 <br>
 {% endfor %}
 </ul>

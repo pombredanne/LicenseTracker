@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 	url(r'^license/view_requests/$', views.license_requests, name = 'license_requests'),
 	url(r'^license/request/(?P<license_id>\d+)/', views.request_detail, name = 'request_detail'),
 	url(r'^license/request/approved/$', views.license_approved, name = 'license_approved'),
+	url(r'^license/request/deny_reason/$', views.license_deny_reason, name = 'license_deny_reason'),
 	url(r'^license/request/denied/$', views.license_denied, name = 'license_denied'),
 	url(r'^license/request/changed/$', views.license_changed, name = 'license_changed'),
 		
@@ -21,7 +22,7 @@ urlpatterns = patterns('',
 	url(r'^user/view_requests/$', views.user_requests, name = 'user_requests'),
 	url(r'^user/request/approved/$', views.user_approved, name = 'user_approved'),
 	url(r'^user/request/denied/$', views.user_denied, name = 'user_denied'), 
-	url(r'^user/request/(?P<viewed_username>\w+)/$', views.user_request_detail, name = 'user_request_detail'),
+	url(r'^user/request/(?P<user_id>\d+)/', views.user_request_detail, name = 'user_request_detail'),
 
 	
 	url(r'^password/view_requests/$', views.password_requests, name = 'password_requests'),

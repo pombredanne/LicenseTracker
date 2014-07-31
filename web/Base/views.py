@@ -7,8 +7,10 @@ from Base.models import License
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import string
 import random
+from django.contrib.auth.hashers import PBKDF2PasswordHasher, make_password
 
 def home(request):
+	
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
 	else:
@@ -242,7 +244,7 @@ def request_sent(request):
 						  ML_pay_twenfivk = ML_pay_twenfivk, ongoing_payments = ongoing_payments, ongoing_how_much = ongoing_how_much, ongoing_how_often = ongoing_how_often, 
 						  we_use_work = we_use_work, do_we_distribute = do_we_distribute, did_we_host = did_we_host, third_party_host = third_party_host, if_modified = if_modified, 
 						  use_generate_code = use_generate_code, form_gen_code = form_gen_code, how_hard_replace = how_hard_replace, obligation = obligation, additional_comments = additional_comments,
-						  software_name = software_name, software_version = software_version, authorization = authorization, requested_by = requested_by)
+						  software_name = software_name, software_version = software_version, authorization = authorization, requested_by = requested_by, deny_reason = "None")
 	new_license.save()
 
 	if approver_session != True:
@@ -278,7 +280,7 @@ def user_requests(request):
 			a = 'user_'
 			b = str(urequest.username)
 			c = a+b
-			c = [urequest.username, urequest.first_name, urequest.last_name]
+			c = [urequest.username, urequest.first_name, urequest.last_name, urequest.id]
 			user_list.append(c)
 
 
@@ -300,7 +302,7 @@ def user_requests(request):
 		})
 		return HttpResponse(template.render(context))
 
-def user_request_detail(request, viewed_username):
+def user_request_detail(request, user_id):
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
 	else:
@@ -310,7 +312,14 @@ def user_request_detail(request, viewed_username):
 	else:
 		approver_session = False
 
-	viewed_user = User_request.objects.get(username = viewed_username)
+	request.session['prev_page'] = request.build_absolute_uri(None)
+	viewed_user = User_request.objects.get(id = user_id)
+
+	if 'approval_error' in request.session:
+		error = request.session['approval_error']
+		request.session['approval_error'] = False
+	else:
+		error = False
 
 	if approver_session == True:
 		template  = loader.get_template('Base/user_request_details.html') 
@@ -322,6 +331,7 @@ def user_request_detail(request, viewed_username):
 			'user_request_email'	 : viewed_user.email,
 			'user_request_password'  : viewed_user.password,
 			'approver_session'		 : approver_session,
+			'error'					 : error,
 		})
 		return HttpResponse(template.render(context))
 
@@ -339,16 +349,23 @@ def user_approved(request):
 	new_lastname       = request.POST['request_last_name']
 	new_email          = request.POST['request_email']
 	new_password       = request.POST['request_password']
-	new_approverstatus_string = request.POST['request_approver_status']
+	if 'request_approver_status' in request.POST:	
+		new_approverstatus_string = request.POST['request_approver_status']
+	else:
+		new_approverstatus_string = False
 	
 	if new_approverstatus_string == 'True':
 		new_approverstatus = True
 	else:
 		new_approverstatus = False
 
+	if 'prev_page' in request.session:
+		back = request.session['prev_page']
+		request.session['prev_page'] = False
 
 	if not new_username or not new_firstname or not new_lastname or not new_email or not new_password:
-		return HttpResponseRedirect('/user/view_requests')
+		request.session['approval_error'] = 'One or more fields was left blank'
+		return HttpResponseRedirect(back)
 	else:
 		new_user = User(username = new_username, first_name = new_firstname, last_name = new_lastname,
 		email = new_email, password = new_password, approver_status = new_approverstatus)
@@ -358,7 +375,7 @@ def user_approved(request):
 	try:
 		send_mail('User request on OpenSource website accepted', new_user.first_name +" "+ new_user.last_name + ",\n    " + 
 			  "Your request to become an authorized user on the Marketlive OpenSource website was accepted. Username: "+
-			  new_user.username+", Password: "+new_user.password+".", 'wolfa97@comcast.net', [new_user.email], fail_silently = False)
+			  new_user.username+".", 'wolfa97@comcast.net', [new_user.email], fail_silently = False)
 	except SMTPRecipientsRefused:
 		pass
 
@@ -559,6 +576,29 @@ def license_approved(request):
 	})
 	return HttpResponse(template.render(context))
 
+def license_deny_reason(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+
+	license_id = request.POST['license_id']
+	
+	if auth_session == True:
+		template  = loader.get_template('Base/deny_reason.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+			'id'				: license_id,
+		})
+		return HttpResponse(template.render(context))
+	else:
+		return HttpResponseRedirect('/login')
+
 def license_denied(request):
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
@@ -570,8 +610,12 @@ def license_denied(request):
 		approver_session = False
 
 	license_id = request.POST['license_id']
+	deny_reason = request.POST['deny_text']
+	if deny_reason == "Why did you deny this license?":
+		deny_reason = 'None'
 	denied_license = License.objects.get(id = license_id)
 	denied_license.authorization = 'denied'
+	denied_license.deny_reason = deny_reason
 	denied_license.save()
 	template  = loader.get_template('Base/license_denied.html') 
 	context   = RequestContext(request, {
@@ -626,7 +670,8 @@ def license_detail(request, license_id):
 			'authorization'		  : license.authorization,
 			'date_requested'	  : license.date_requested,
 			'license_id'		  : license.id,
-			'back'				  : request.session['prev_page']
+			'back'				  : request.session['prev_page'],
+			'deny_reason'		  : license.deny_reason,
 		})
 		return HttpResponse(template.render(context))
 	else:
@@ -796,7 +841,7 @@ def password_request_approve(request):
 	new_pass_upper = "".join(lst)
 	new_pass = new_pass_upper.lower()
 
-	user.password = new_pass
+	user.password = make_password(new_pass, 'the salt')
 	
 	try:
 		send_mail('Password reset on OpenSource website', user.first_name +" "+ user.last_name + ",\n    " + 
@@ -904,7 +949,7 @@ def password_changed(request):
 		request.session['pass_error'] = 'Passwords did not match.'
 		return HttpResponseRedirect('/password/change/')
 	else:
-		user.password = password
+		user.password = make_password(password, 'the salt')
 		user.password_reset = False
 		user.save()
 		if auth_session == True:

@@ -109,7 +109,11 @@
 	<label for='none'>Request</label>
 	<input type="radio" name="authorization" id='none' value='none' {% if authorization = 'none' %}checked{% endif %}>&emsp;
 	</b>
+	{% if authorization = 'denied' %}<br><br>Reason for denial: <br>
+	<textarea name="deny_reason" id="deny_reason" rows="5" cols="80">{{ deny_reason }}</textarea>
+	{% endif %}
 	</form>
+
 
 
 	<form name="back" action={{ back }} id="back" method="post">{% csrf_token %}</form>
@@ -146,7 +150,9 @@
 <p>Is this software required for any obligation?: <b>{% if obligation = True %}<span style="color:green">True</span>{% elif obligation = False %}<span style="color:red">False</span>{% endif %}</b></p>
 <p>Additional comments:	<br><p style='width:600px; margin-left: 2em'>{{ additional_comments }}</p><br>
 <p>Status of license: <b>{% if authorization = 'accepted' %}<span style="color:green">Accepted</span>{% elif authorization = 'denied' %}<span style="color:red">Denied</span>{% endif %}</b></p><br>
-
+{% if authorization = 'denied' %}Reason for denial: <br>
+	<p style='text-indent:2em'>{{ deny_reason }}</p>
+	{% endif %}
 <p><a href={{ back }}><button style="width:150px"> Back </button></a>
 {% endif %}
 {% endblock %}

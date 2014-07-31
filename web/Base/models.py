@@ -77,6 +77,7 @@ class License(models.Model):
 	date_requested		= models.DateField(auto_now_add = True)	#date requested. Sets itself at creation of this object.
 	authorization		= models.CharField(max_length = 20)		#none/"none", "denied", "accepted"
 	requested_by		= models.CharField(max_length = 100)	#is firstname lastname
+	deny_reason			= models.TextField()
 
 	def __str__(self):
 		return self.software_name

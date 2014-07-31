@@ -103,7 +103,7 @@ Additional comments:<br>
 <input type="hidden" name="license_id" value={{ license_id }}>
 </form>
 
-<form name="license_request_deny" id="license_request_deny" action="{% url 'license_denied' %}" method="post">{% csrf_token %}
+<form name="license_request_deny" id="license_request_deny" action="{% url 'license_deny_reason' %}" method="post">{% csrf_token %}
 <input type="hidden" name="license_id" value={{ license_id }}></form>
 
 <form name="back" action="{% url 'license_requests' %}" id="back" method="post">{% csrf_token %}</form>

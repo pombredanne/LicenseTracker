@@ -1,0 +1,10 @@
+{% extends 'Omega_Template.html' %}
+{% block Title %}Deny License{% endblock %}
+{% block content %}
+<form name='deny_reason' action='{% url 'license_denied' %}' method='post'>
+{% csrf_token %}
+<textarea name="deny_text" rows="5" cols="80">Why did you deny this license?</textarea>
+<input type="hidden" name='license_id' value={{ id }}>
+<input type='submit'>
+</form>
+{% endblock %}

@@ -5,6 +5,9 @@ from django.template import RequestContext, loader
 from django.core.urlresolvers import reverse
 from Login.models import User, User_request, Pass_reset
 from django.core.mail import send_mail
+from django.contrib.auth.hashers import PBKDF2PasswordHasher, make_password
+
+salt = 'fm39djqwfo'
 
 def login(request):
 	if 'auth' in request.session:
@@ -32,7 +35,7 @@ def testo(request):
 
 	if entered_name in userlist:
 		active_user = User.objects.get(username = entered_name)
-		if active_user.password == entered_password:
+		if active_user.password == make_password(entered_password, 'the salt'):
 			request.session['auth'] = True
 			request.session['current_user'] = active_user.id
 			request.session['approver'] = active_user.approver_status
@@ -46,7 +49,7 @@ def testo(request):
 	
 	elif entered_name in unauthorized_userlist:
 		active_user = User_request.objects.get(username = entered_name)
-		if active_user.password == entered_password:
+		if active_user.password == make_password(entered_password, 'the salt'):
 			request.session['auth'] = False
 			template = loader.get_template('Login/user_unauthorized.html')
 
@@ -113,7 +116,7 @@ def request_sent(request):
 		return HttpResponseRedirect('/login/new_user')
 
 	else:
-		new_user_request = User_request(username = requested_username, password = requested_password, first_name = request_first_name, last_name = request_last_name, email = request_email)
+		new_user_request = User_request(username = requested_username, password = make_password(requested_password, 'the salt'), first_name = request_first_name, last_name = request_last_name, email = request_email)
 		new_user_request.save()
 		approver_email_list = []
 		for admin in User.objects.all():

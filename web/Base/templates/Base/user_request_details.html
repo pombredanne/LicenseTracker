@@ -3,37 +3,39 @@
 {% block Title %}{{ user_request_firstname}} {{ user_request_lastname }} {% endblock %}
 
 {% block content %}
-<form name="user_request_approve" action="{% url 'user_approved' %}" method="post">
+
+{% if error %}
+<p style='color:red'>{{ error }}</p>
+{% endif %}
+
+<form name="user_request_approve" id="user_request_approve" action="{% url 'user_approved' %}" method="post">
 {% csrf_token %}
-Username: <input type="text" name="request_username" value = {{ user_request_username }} ><br>
-First name: <input type="text" name="request_first_name" value = {{ user_request_firstname }} ><br>
-Last name: <input type="text" name="request_last_name" value = {{ user_request_lastname }} ><br>
-Email: <input type="email" name="request_email" value = {{ user_request_email }} ><br>
+<p>Username: <br><textarea name="request_username" rows="1" cols="25">{{ user_request_username }}</textarea></p>
+<p>First name: <br><textarea name="request_first_name" rows="1" cols="25">{{ user_request_firstname }}</textarea></p>
+<p>Last name: <br><textarea name="request_last_name" rows="1" cols="25">{{ user_request_lastname }}</textarea></p>
+<p>Email: <br><textarea name="request_email" rows="1" cols="25">{{ user_request_email }}</textarea></p>
 
 Approver Status:<br>
 <input type="radio" name="request_approver_status" value=True>True<br>
 <input type="radio" name="request_approver_status" value=False>False<br>
 
-<input type="hidden" name="request_password" value = {{ user_request_password }} >
-<input type="hidden" name="request_unalt_username" value = {{ user_request_username }} >
-<input type="submit" value="Approve" />
+<textarea name="request_password" rows="1" cols="25" style="display:none;">{{ user_request_password }}</textarea>
+<textarea name="request_unalt_username" rows="1" cols="25" style="display:none;">{{ user_request_username }}</textarea>
 </form>
 
 <br>
 
-<form name="user_request_deny" action="{% url 'user_denied' %}" method="post">
+<form name="user_request_deny" id="user_request_deny" action="{% url 'user_denied' %}" method="post">
 {% csrf_token %}
-<input type="hidden" name="request_username" value = {{ user_request_username }} >
-<input type="submit" value="Deny" />
-</form>
 
-<br>
-
-<form name="user_request_back" action="{% url 'user_requests' %}" method="get">
-<input type="submit" value="Back" />
+<textarea name="request_username" rows="1" cols="25" style="display:none;">{{ user_request_username }}</textarea>
+<form name="user_request_back" id="user_request_back"action="{% url 'user_requests' %}" method="post">{% csrf_token %}
 </form>
 
 
+<input type="submit" value="Approve" form="user_request_approve"/>
+<input type="submit" value="Deny" form="user_request_deny"/>
+<input type="submit" value="Back" form="user_request_back"/>
 <p><font size="2"> All fields are case-sensitive </font></p>
 
 
