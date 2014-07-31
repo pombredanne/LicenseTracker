@@ -167,6 +167,12 @@ def password_request_sent(request):
 		a = User.objects.get(username = username)
 		b = Pass_reset(user = a, text = comments)
 		b.save()
+		for admin in User.objects.all():
+			if admin.approver_status == True:
+				send_mail('New change password request', admin.username + ",\n    " + a.first_name+" "+a.last_name+
+					" has sent a request for his/her password to be reset on the Marketlive OpenSource database website. Please log on to accept or reject this request.",
+					'wolfa97@comcast.net', [admin.email], fail_silently = False)
+
 		template  = loader.get_template('Login/password_request_sent.html') 
 		context   = RequestContext(request, {
 			'user': b,

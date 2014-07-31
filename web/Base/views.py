@@ -10,7 +10,6 @@ import random
 from django.contrib.auth.hashers import PBKDF2PasswordHasher, make_password
 
 def home(request):
-	
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
 	else:
@@ -19,16 +18,16 @@ def home(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
-
-	if auth_session == True:
-		template  = loader.get_template('Base/home.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-		})
-		return HttpResponse(template.render(context))
-	else:
+	if auth_session != True:
 		return HttpResponseRedirect('/login')
+
+	
+	template  = loader.get_template('Base/home.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+	})
+	return HttpResponse(template.render(context))
 
 def view_licenses(request, pagenum):
 	if 'auth' in request.session:
@@ -39,6 +38,8 @@ def view_licenses(request, pagenum):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 
 	license_list = []
 	for license in License.objects.extra( select={'lower_name':'lower(software_name)'}).order_by('lower_name'):
@@ -79,6 +80,8 @@ def view_licenses_search(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 
 	query = request.GET.get('search', '')
 	word_list = query.split(' ')
@@ -125,6 +128,8 @@ def request_form(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 
 	if 'request_error' in request.session:
 		request_error = request.session['request_error']
@@ -149,6 +154,8 @@ def additional_information(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 
 	software_name 		= request.POST['software_name']
 	software_version 	= request.POST['software_version']
@@ -193,6 +200,8 @@ def request_sent(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 
 	licensor_name 		= request.POST['licensor_name']
 	license_type 		= request.POST['license_type']
@@ -273,6 +282,15 @@ def user_requests(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	user_list = []
 	for urequest in User_request.objects.all():
@@ -283,24 +301,14 @@ def user_requests(request):
 			c = [urequest.username, urequest.first_name, urequest.last_name, urequest.id]
 			user_list.append(c)
 
-
-	if approver_session == True:
-		template  = loader.get_template('Base/user_requests.html') 
-		context   = RequestContext(request, {
-			'auth_session'   : auth_session,
-			'user_list'      : user_list,
-			'approver_session' 	: approver_session,
-		})
-		return HttpResponse(template.render(context))
-
-
-	else:
-		template  = loader.get_template('Base/not_approver.html')
-		context   = RequestContext(request, {
-			'auth_session'	   : auth_session,
-
-		})
-		return HttpResponse(template.render(context))
+	template  = loader.get_template('Base/user_requests.html') 
+	context   = RequestContext(request, {
+		'auth_session'   : auth_session,
+		'user_list'      : user_list,
+		'approver_session' 	: approver_session,
+	})
+	return HttpResponse(template.render(context))
+	
 
 def user_request_detail(request, user_id):
 	if 'auth' in request.session:
@@ -311,6 +319,15 @@ def user_request_detail(request, user_id):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	request.session['prev_page'] = request.build_absolute_uri(None)
 	viewed_user = User_request.objects.get(id = user_id)
@@ -321,28 +338,39 @@ def user_request_detail(request, user_id):
 	else:
 		error = False
 
-	if approver_session == True:
-		template  = loader.get_template('Base/user_request_details.html') 
-		context   = RequestContext(request, {
-			'auth_session' 			 : auth_session,
-			'user_request_firstname' : viewed_user.first_name,
-			'user_request_lastname'  : viewed_user.last_name,
-			'user_request_username'	 : viewed_user.username,
-			'user_request_email'	 : viewed_user.email,
-			'user_request_password'  : viewed_user.password,
-			'approver_session'		 : approver_session,
-			'error'					 : error,
-		})
-		return HttpResponse(template.render(context))
-
-	else:
-		template  = loader.get_template('Base/not_approver.html')
-		context   = RequestContext(request, {
-			'auth_session' : auth_session,
-		})
-		return HttpResponse(template.render(context))
+	
+	template  = loader.get_template('Base/user_request_details.html') 
+	context   = RequestContext(request, {
+		'auth_session' 			 : auth_session,
+		'user_request_firstname' : viewed_user.first_name,
+		'user_request_lastname'  : viewed_user.last_name,
+		'user_request_username'	 : viewed_user.username,
+		'user_request_email'	 : viewed_user.email,
+		'user_request_password'  : viewed_user.password,
+		'approver_session'		 : approver_session,
+		'error'					 : error,
+	})
+	return HttpResponse(template.render(context))
 
 def user_approved(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
+
 	unaltered_username = request.POST['request_unalt_username']
 	new_username       = request.POST['request_username']
 	new_firstname      = request.POST['request_first_name']
@@ -393,11 +421,29 @@ def user_approved(request):
 	return HttpResponse(template.render(context))
 
 def user_denied(request):
+	if 'auth' in request.session:
+		auth_session = request.session['auth']
+	else:
+		auth_session = False
+	if 'approver' in request.session:
+		approver_session = request.session['approver']
+	else:
+		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
+
 	new_username = request.POST['request_username']
 	denied_user = User_request.objects.get(username = new_username)
 	denied_user.denied = True
 	denied_user.save()
-
+		
 	template = loader.get_template('Base/user_denied.html')
 	context = RequestContext(request, {
 		'username' : denied_user.username,
@@ -413,6 +459,15 @@ def license_requests(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 	
 	license_list = []
 	for lrequest in License.objects.all():
@@ -423,16 +478,13 @@ def license_requests(request):
 			c = [lrequest.software_name[:20], lrequest.software_version[:12], lrequest.license_type[:15], lrequest.date_requested, lrequest.id]
 			license_list.append(c)
 
-	if auth_session == True:
-		template  = loader.get_template('Base/license_requests.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-			'license_list'		: license_list,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/license_requests.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'license_list'		: license_list,
+	})
+	return HttpResponse(template.render(context))
 
 def request_detail(request, license_id):
 	if 'auth' in request.session:
@@ -443,52 +495,53 @@ def request_detail(request, license_id):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	viewed_license = License.objects.get(id = license_id)
 
-	if approver_session == True:
-		template  = loader.get_template('Base/license_request_details.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		  : auth_session,
-			'approver_session'	  : approver_session,
-			'software_name'		  : viewed_license.software_name,
-			'software_version'	  : viewed_license.software_version,
-			'licensor_name'		  : viewed_license.licensor_name,
-			'license_type'		  : viewed_license.license_type,
-			'copy_of_license'	  : viewed_license.copy_of_license,
-			'where_used'		  : viewed_license.where_used,
-			'client_where_used'	  : viewed_license.client_where_used,
-			'desc_nature_work'	  : viewed_license.desc_nature_work,
-			'desc_function_work'  : viewed_license.desc_function_work,
-			'category_of_work'	  : viewed_license.category_of_work,
-			'if_ML_paid_for'	  : viewed_license.if_ML_paid_for,
-			'ML_pay_twenfivk'	  : viewed_license.ML_pay_twenfivk,
-			'ongoing_payments'	  : viewed_license.ongoing_payments,
-			'ongoing_how_much'	  : viewed_license.ongoing_how_much,
-			'ongoing_how_often'	  : viewed_license.ongoing_how_often,
-			'we_use_work'		  : viewed_license.we_use_work,
-			'do_we_distribute'	  : viewed_license.do_we_distribute,
-			'did_we_host'		  : viewed_license.did_we_host,
-			'third_party_host'	  : viewed_license.third_party_host,
-			'if_modified'		  : viewed_license.if_modified,
-			'use_generate_code'	  : viewed_license.use_generate_code,
-			'form_gen_code'		  : viewed_license.form_gen_code,
-			'how_hard_replace'	  : viewed_license.how_hard_replace,
-			'obligation'		  : viewed_license.obligation,
-			'additional_comments' : viewed_license.additional_comments,
-			'requested_by'		  : viewed_license.requested_by,
-			'authorization'		  : viewed_license.authorization,
-			'date_requested'	  : viewed_license.date_requested,
-			'license_id'		  : viewed_license.id,
-		})
-		return HttpResponse(template.render(context))
-
-	else:
-		template  = loader.get_template('Base/not_approver.html')
-		context   = RequestContext(request, {
-			'auth_session' : auth_session,
-		})
-		return HttpResponse(template.render(context))
+	template  = loader.get_template('Base/license_request_details.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		  : auth_session,
+		'approver_session'	  : approver_session,
+		'software_name'		  : viewed_license.software_name,
+		'software_version'	  : viewed_license.software_version,
+		'licensor_name'		  : viewed_license.licensor_name,
+		'license_type'		  : viewed_license.license_type,
+		'copy_of_license'	  : viewed_license.copy_of_license,
+		'where_used'		  : viewed_license.where_used,
+		'client_where_used'	  : viewed_license.client_where_used,
+		'desc_nature_work'	  : viewed_license.desc_nature_work,
+		'desc_function_work'  : viewed_license.desc_function_work,
+		'category_of_work'	  : viewed_license.category_of_work,
+		'if_ML_paid_for'	  : viewed_license.if_ML_paid_for,
+		'ML_pay_twenfivk'	  : viewed_license.ML_pay_twenfivk,
+		'ongoing_payments'	  : viewed_license.ongoing_payments,
+		'ongoing_how_much'	  : viewed_license.ongoing_how_much,
+		'ongoing_how_often'	  : viewed_license.ongoing_how_often,
+		'we_use_work'		  : viewed_license.we_use_work,
+		'do_we_distribute'	  : viewed_license.do_we_distribute,
+		'did_we_host'		  : viewed_license.did_we_host,
+		'third_party_host'	  : viewed_license.third_party_host,
+		'if_modified'		  : viewed_license.if_modified,
+		'use_generate_code'	  : viewed_license.use_generate_code,
+		'form_gen_code'		  : viewed_license.form_gen_code,
+		'how_hard_replace'	  : viewed_license.how_hard_replace,
+		'obligation'		  : viewed_license.obligation,
+		'additional_comments' : viewed_license.additional_comments,
+		'requested_by'		  : viewed_license.requested_by,
+		'authorization'		  : viewed_license.authorization,
+		'date_requested'	  : viewed_license.date_requested,
+		'license_id'		  : viewed_license.id,
+	})
+	return HttpResponse(template.render(context))
 
 def license_approved(request):
 	if 'auth' in request.session:
@@ -499,6 +552,15 @@ def license_approved(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	licensor_name 		= request.POST['licensor_name']
 	license_type 		= request.POST['license_type']
@@ -585,19 +647,25 @@ def license_deny_reason(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	license_id = request.POST['license_id']
 	
-	if auth_session == True:
-		template  = loader.get_template('Base/deny_reason.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-			'id'				: license_id,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/deny_reason.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'id'				: license_id,
+	})
+	return HttpResponse(template.render(context))
 
 def license_denied(request):
 	if 'auth' in request.session:
@@ -608,6 +676,15 @@ def license_denied(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	license_id = request.POST['license_id']
 	deny_reason = request.POST['deny_text']
@@ -633,49 +710,49 @@ def license_detail(request, license_id):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 	
 	license = License.objects.get(id = license_id)
 
-	if auth_session == True:
-		template  = loader.get_template('Base/license_detail.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		  : auth_session,
-			'approver_session'	  : approver_session,
-			'software_name'		  : license.software_name,
-			'software_version'	  : license.software_version,
-			'licensor_name'		  : license.licensor_name,
-			'license_type'		  : license.license_type,
-			'copy_of_license'	  : license.copy_of_license,
-			'where_used'		  : license.where_used,
-			'client_where_used'	  : license.client_where_used,
-			'desc_nature_work'	  : license.desc_nature_work,
-			'desc_function_work'  : license.desc_function_work,
-			'category_of_work'	  : license.category_of_work,
-			'if_ML_paid_for'	  : license.if_ML_paid_for,
-			'ML_pay_twenfivk'	  : license.ML_pay_twenfivk,
-			'ongoing_payments'	  : license.ongoing_payments,
-			'ongoing_how_much'	  : license.ongoing_how_much,
-			'ongoing_how_often'	  : license.ongoing_how_often,
-			'we_use_work'		  : license.we_use_work,
-			'do_we_distribute'	  : license.do_we_distribute,
-			'did_we_host'		  : license.did_we_host,
-			'third_party_host'	  : license.third_party_host,
-			'if_modified'		  : license.if_modified,
-			'use_generate_code'	  : license.use_generate_code,
-			'form_gen_code'		  : license.form_gen_code,
-			'how_hard_replace'	  : license.how_hard_replace,
-			'obligation'		  : license.obligation,
-			'additional_comments' : license.additional_comments,
-			'requested_by'		  : license.requested_by,
-			'authorization'		  : license.authorization,
-			'date_requested'	  : license.date_requested,
-			'license_id'		  : license.id,
-			'back'				  : request.session['prev_page'],
-			'deny_reason'		  : license.deny_reason,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/license_detail.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		  : auth_session,
+		'approver_session'	  : approver_session,
+		'software_name'		  : license.software_name,
+		'software_version'	  : license.software_version,
+		'licensor_name'		  : license.licensor_name,
+		'license_type'		  : license.license_type,
+		'copy_of_license'	  : license.copy_of_license,
+		'where_used'		  : license.where_used,
+		'client_where_used'	  : license.client_where_used,
+		'desc_nature_work'	  : license.desc_nature_work,
+		'desc_function_work'  : license.desc_function_work,
+		'category_of_work'	  : license.category_of_work,
+		'if_ML_paid_for'	  : license.if_ML_paid_for,
+		'ML_pay_twenfivk'	  : license.ML_pay_twenfivk,
+		'ongoing_payments'	  : license.ongoing_payments,
+		'ongoing_how_much'	  : license.ongoing_how_much,
+		'ongoing_how_often'	  : license.ongoing_how_often,
+		'we_use_work'		  : license.we_use_work,
+		'do_we_distribute'	  : license.do_we_distribute,
+		'did_we_host'		  : license.did_we_host,
+		'third_party_host'	  : license.third_party_host,
+		'if_modified'		  : license.if_modified,
+		'use_generate_code'	  : license.use_generate_code,
+		'form_gen_code'		  : license.form_gen_code,
+		'how_hard_replace'	  : license.how_hard_replace,
+		'obligation'		  : license.obligation,
+		'additional_comments' : license.additional_comments,
+		'requested_by'		  : license.requested_by,
+		'authorization'		  : license.authorization,
+		'date_requested'	  : license.date_requested,
+		'license_id'		  : license.id,
+		'back'				  : request.session['prev_page'],
+		'deny_reason'		  : license.deny_reason,
+	})
+	return HttpResponse(template.render(context))
+
 
 def license_changed(request):
 	if 'auth' in request.session:
@@ -686,6 +763,15 @@ def license_changed(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	licensor_name 		= request.POST['licensor_name']
 	license_type 		= request.POST['license_type']
@@ -773,6 +859,15 @@ def password_requests(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 	
 	user_list = []
 	for prequest in Pass_reset.objects.all():
@@ -782,16 +877,13 @@ def password_requests(request):
 			c = [prequest.user.username, prequest.user.first_name, prequest.user.last_name, prequest.id]
 			user_list.append(c)
 	
-	if auth_session == True:
-		template  = loader.get_template('Base/password_requests.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-			'user_list'			: user_list,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/password_requests.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'user_list'			: user_list,
+	})
+	return HttpResponse(template.render(context))
 
 def password_request_detail(request, pass_id):
 	a = Pass_reset.objects.get(id = pass_id)
@@ -803,23 +895,29 @@ def password_request_detail(request, pass_id):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 	
 	a = Pass_reset.objects.get(id = pass_id)
 	
-	if auth_session == True:
-		template  = loader.get_template('Base/password_request_detail.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-			'user_first'		: a.user.first_name,
-			'user_last'			: a.user.last_name,
-			'username'			: a.user.username,
-			'request_text'		: a.text,
-			'request_id'		: a.id,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/password_request_detail.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'user_first'		: a.user.first_name,
+		'user_last'			: a.user.last_name,
+		'username'			: a.user.username,
+		'request_text'		: a.text,
+		'request_id'		: a.id,
+	})
+	return HttpResponse(template.render(context))
 
 def password_request_approve(request):
 	if 'auth' in request.session:
@@ -830,6 +928,15 @@ def password_request_approve(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	request_id = request.POST['request_id']
 	prequest = Pass_reset.objects.get(id = request_id)
@@ -859,15 +966,12 @@ def password_request_approve(request):
 		})
 		return HttpResponse(template.render(context))
 
-	if auth_session == True:
-		template  = loader.get_template('Base/password_reset.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/password_reset.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+	})
+	return HttpResponse(template.render(context))
 
 def password_request_deny(request):
 	if 'auth' in request.session:
@@ -878,6 +982,15 @@ def password_request_deny(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	if approver_session != True:
+		template  = loader.get_template('Base/not_approver.html')
+		context   = RequestContext(request, {
+			'auth_session'	   : auth_session,
+
+		})
+		return HttpResponse(template.render(context))
 
 	request_id = request.POST['request_id']
 
@@ -891,17 +1004,14 @@ def password_request_deny(request):
 	except SMTPRecipientsRefused:
 		pass
 
-	if auth_session == True:
-		template  = loader.get_template('Base/reset_denied.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-			'first'				: user.first_name,
-			'last'				: user.last_name,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/reset_denied.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'first'				: user.first_name,
+		'last'				: user.last_name,
+	})
+	return HttpResponse(template.render(context))
 
 def change_password(request):
 	if 'auth' in request.session:
@@ -912,22 +1022,22 @@ def change_password(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
+	
 	if 'pass_error' in request.session:
 		error = request.session['pass_error']
 		request.session['pass_error'] = False
 	else:
 		error = False
 
-	if auth_session == True:
-		template  = loader.get_template('Base/change_password.html') 
-		context   = RequestContext(request, {
-			'auth_session' 		: auth_session,
-			'approver_session' 	: approver_session,
-			'error'				: error,
-		})
-		return HttpResponse(template.render(context))
-	else:
-		return HttpResponseRedirect('/login')
+	template  = loader.get_template('Base/change_password.html') 
+	context   = RequestContext(request, {
+		'auth_session' 		: auth_session,
+		'approver_session' 	: approver_session,
+		'error'				: error,
+	})
+	return HttpResponse(template.render(context))
 
 def password_changed(request):
 	if 'auth' in request.session:
@@ -938,12 +1048,13 @@ def password_changed(request):
 		approver_session = request.session['approver']
 	else:
 		approver_session = False
+	if auth_session != True:
+		return HttpResponseRedirect('/login')
 	
 	user_id = request.session['current_user']
 	user = User.objects.get(id = user_id)
 	password = request.POST['password']
 	confirm_password = request.POST['confirm_password']
-
 	
 	if password != confirm_password:
 		request.session['pass_error'] = 'Passwords did not match.'
@@ -951,16 +1062,13 @@ def password_changed(request):
 	else:
 		user.password = make_password(password, 'the salt')
 		user.password_reset = False
-		user.save()
-		if auth_session == True:
-			template  = loader.get_template('Base/password_changed.html') 
-			context   = RequestContext(request, {
-				'auth_session' 		: auth_session,
-				'approver_session' 	: approver_session,
-			})
-			return HttpResponse(template.render(context))
-		else:
-			return HttpResponseRedirect('/login')
+		user.save()	
+		template  = loader.get_template('Base/password_changed.html') 
+		context   = RequestContext(request, {
+			'auth_session' 		: auth_session,
+			'approver_session' 	: approver_session,
+		})
+		return HttpResponse(template.render(context))
 
 #def template_view(request):
 	#if 'auth' in request.session:
