@@ -2,7 +2,10 @@ from django.conf.urls import patterns, url
 from Base import views
 
 urlpatterns = patterns('',
+	
 	url(r'^$', views.home, name='home'),
+
+
 	url(r'^license/view/search/', views.view_licenses_search, name = 'view_licenses_search'),
 	url(r'^license/view/page_(?P<pagenum>\S+)/$', views.view_licenses, name = 'view_licenses'),
 	url(r'^license/view/(?P<license_id>\d+)/', views.license_detail, name = 'request_detail'),
@@ -17,7 +20,7 @@ urlpatterns = patterns('',
 	url(r'^license/request/deny_reason/$', views.license_deny_reason, name = 'license_deny_reason'),
 	url(r'^license/request/denied/$', views.license_denied, name = 'license_denied'),
 	url(r'^license/request/changed/$', views.license_changed, name = 'license_changed'),
-		
+	
 
 	url(r'^user/view_requests/$', views.user_requests, name = 'user_requests'),
 	url(r'^user/request/approved/$', views.user_approved, name = 'user_approved'),
