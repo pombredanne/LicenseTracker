@@ -1,3 +1,5 @@
+from options import *
+
 """
 Django settings for OpenSource project.
 
@@ -68,7 +70,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = time_zone
 
 USE_I18N = True
 
@@ -76,10 +78,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-EMAIL_HOST = 'smtp.comcast.net'
-EMAIL_HOST_USER = 'wolfa97'
-EMAIL_HOST_PASSWORD = 'Willy2006'
-EMAIL_PORT = 587
+EMAIL_HOST = email_host
+EMAIL_HOST_USER = email_username
+EMAIL_HOST_PASSWORD = email_password
+EMAIL_PORT = email_port
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 # Static files (CSS, JavaScript, Images)

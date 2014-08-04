@@ -7,7 +7,7 @@ class License(models.Model):
 	licensor_name 		= models.CharField(max_length = 50)		#No idea.
 	license_type 		= models.CharField(max_length = 50)		#MIT, GNU Public, etc.
 	copy_of_license 	= models.TextField()					#duh
-	where_used 			= models.CharField(max_length = 100) 	#name and version of ML component where this work will be used. Admin, B2C, CCOM, etc.
+	where_used 			= models.CharField(max_length = 100) 	#name and version of the component where this work will be used. Admin, B2C, CCOM, etc.
 	client_where_used 	= models.CharField(max_length = 100)  	#include text about being "none"/"all"
 	desc_nature_work 	= models.CharField(max_length = 200)	#brief desc of nature of work. Ex: source code, object code, documentation
 	desc_function_work 	= models.CharField(max_length = 200)	#brief desc of function of work. 
@@ -36,10 +36,10 @@ class License(models.Model):
 
 	category_of_work 	= models.CharField(max_length = 20, choices = category_of_work_choices, default = 'none')
 	
-	if_ML_paid_for 		= models.NullBooleanField()				#somehow link with next 4
-	ML_pay_twenfivk 	= models.NullBooleanField()				#get only to show up if last is True
+	if_paid_for 		= models.NullBooleanField()				#somehow link with next 4
+	pay_twenfivk 		= models.NullBooleanField()				#get only to show up if last is True
 	ongoing_payments 	= models.NullBooleanField()				#ditto^
-	ongoing_how_much	= models.IntegerField()				#only if if_ML_paid_for and ongoing_payments both True 
+	ongoing_how_much	= models.IntegerField()				#only if if_paid_for and ongoing_payments both True 
 	ongoing_how_often 	= models.IntegerField()				#label in weeks, months, whatevs. And ditto^
 	we_use_work 		= models.NullBooleanField()				#do we use the 3rd party work, such as for internal use? Prob yes...
 

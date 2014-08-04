@@ -8,6 +8,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import string
 import random
 from django.contrib.auth.hashers import PBKDF2PasswordHasher, make_password
+from options import *
 
 def home(request):
 	if 'auth' in request.session:
@@ -211,8 +212,8 @@ def request_sent(request):
 	desc_nature_work	= request.POST['desc_nature_work']
 	desc_function_work 	= request.POST['desc_function_work']
 	category_of_work 	= request.POST['category_of_work']
-	if_ML_paid_for 		= request.POST.get('if_ML_paid_for', False)
-	ML_pay_twenfivk 	= request.POST.get('ML_pay_twenfivk', False)
+	if_paid_for 		= request.POST.get('if_paid_for', False)
+	pay_twenfivk 		= request.POST.get('pay_twenfivk', False)
 	ongoing_payments	= request.POST.get('ongoing_payments', False)
 	if ongoing_payments:	
 		ongoing_how_much 	= request.POST['ongoing_how_much']
@@ -249,8 +250,8 @@ def request_sent(request):
 
 
 	new_license = License(licensor_name = licensor_name, license_type = license_type, copy_of_license = copy_of_license, where_used = where_used, client_where_used = client_where_used, 
-						  desc_nature_work = desc_nature_work, desc_function_work = desc_function_work, category_of_work = category_of_work, if_ML_paid_for = if_ML_paid_for, 
-						  ML_pay_twenfivk = ML_pay_twenfivk, ongoing_payments = ongoing_payments, ongoing_how_much = ongoing_how_much, ongoing_how_often = ongoing_how_often, 
+						  desc_nature_work = desc_nature_work, desc_function_work = desc_function_work, category_of_work = category_of_work, if_paid_for = if_paid_for, 
+						  pay_twenfivk = pay_twenfivk, ongoing_payments = ongoing_payments, ongoing_how_much = ongoing_how_much, ongoing_how_often = ongoing_how_often, 
 						  we_use_work = we_use_work, do_we_distribute = do_we_distribute, did_we_host = did_we_host, third_party_host = third_party_host, if_modified = if_modified, 
 						  use_generate_code = use_generate_code, form_gen_code = form_gen_code, how_hard_replace = how_hard_replace, obligation = obligation, additional_comments = additional_comments,
 						  software_name = software_name, software_version = software_version, authorization = authorization, requested_by = requested_by, deny_reason = "None")
@@ -260,8 +261,8 @@ def request_sent(request):
 		for admin in User.objects.all():
 				if admin.approver_status == True:
 					try:
-						send_mail('New license request on OpenSource site', admin.username + ",\n    There is a new license request for software "+new_license.software_name+" version "+new_license.software_version+" on the Marketlive OpenSource site, requested by "+new_license.requested_by+". Please log in to accept or decline this request.",
-							  'wolfa97@comcast.net', [admin.email], fail_silently = False)
+						send_mail('New license request on OpenSource site', admin.username + ",\n    There is a new license request for software "+new_license.software_name+" version "+new_license.software_version+" on the "+company_name+" OpenSource site, requested by "+new_license.requested_by+". Please log in to accept or decline this request.",
+							  from_email, [admin.email], fail_silently = False)
 					except SMTPRecipientsRefused:
 						pass
 
@@ -402,8 +403,8 @@ def user_approved(request):
 
 	try:
 		send_mail('User request on OpenSource website accepted', new_user.first_name +" "+ new_user.last_name + ",\n    " + 
-			  "Your request to become an authorized user on the Marketlive OpenSource website was accepted. Username: "+
-			  new_user.username+".", 'wolfa97@comcast.net', [new_user.email], fail_silently = False)
+			  "Your request to become an authorized user on the "+company_name+" OpenSource website was accepted. Username: "+
+			  new_user.username+".", from_email, [new_user.email], fail_silently = False)
 	except SMTPRecipientsRefused:
 		pass
 
@@ -521,8 +522,8 @@ def request_detail(request, license_id):
 		'desc_nature_work'	  : viewed_license.desc_nature_work,
 		'desc_function_work'  : viewed_license.desc_function_work,
 		'category_of_work'	  : viewed_license.category_of_work,
-		'if_ML_paid_for'	  : viewed_license.if_ML_paid_for,
-		'ML_pay_twenfivk'	  : viewed_license.ML_pay_twenfivk,
+		'if_paid_for'	  	  : viewed_license.if_paid_for,
+		'pay_twenfivk'	  	  : viewed_license.pay_twenfivk,
 		'ongoing_payments'	  : viewed_license.ongoing_payments,
 		'ongoing_how_much'	  : viewed_license.ongoing_how_much,
 		'ongoing_how_often'	  : viewed_license.ongoing_how_often,
@@ -570,8 +571,8 @@ def license_approved(request):
 	desc_nature_work	= request.POST['desc_nature_work']
 	desc_function_work 	= request.POST['desc_function_work']
 	category_of_work 	= request.POST['category_of_work']
-	if_ML_paid_for 		= request.POST.get('if_ML_paid_for', False)
-	ML_pay_twenfivk 	= request.POST.get('ML_pay_twenfivk', False)
+	if_paid_for 		= request.POST.get('if_paid_for', False)
+	pay_twenfivk 		= request.POST.get('pay_twenfivk', False)
 	ongoing_payments	= request.POST.get('ongoing_payments', False)
 	if ongoing_payments:	
 		ongoing_how_much 	= request.POST['ongoing_how_much']
@@ -611,8 +612,8 @@ def license_approved(request):
 	approved_license.desc_nature_work = desc_nature_work
 	approved_license.desc_function_work = desc_function_work
 	approved_license.category_of_work = category_of_work
-	approved_license.if_ML_paid_for = if_ML_paid_for
-	approved_license.ML_pay_twenfivk = ML_pay_twenfivk
+	approved_license.if_paid_for = if_paid_for
+	approved_license.pay_twenfivk = pay_twenfivk
 	approved_license.ongoing_payments = ongoing_payments
 	approved_license.ongoing_how_much = ongoing_how_much
 	approved_license.ongoing_how_often = ongoing_how_often
@@ -729,8 +730,8 @@ def license_detail(request, license_id):
 		'desc_nature_work'	  : license.desc_nature_work,
 		'desc_function_work'  : license.desc_function_work,
 		'category_of_work'	  : license.category_of_work,
-		'if_ML_paid_for'	  : license.if_ML_paid_for,
-		'ML_pay_twenfivk'	  : license.ML_pay_twenfivk,
+		'if_paid_for'	  : license.if_paid_for,
+		'pay_twenfivk'	  : license.pay_twenfivk,
 		'ongoing_payments'	  : license.ongoing_payments,
 		'ongoing_how_much'	  : license.ongoing_how_much,
 		'ongoing_how_often'	  : license.ongoing_how_often,
@@ -781,8 +782,8 @@ def license_changed(request):
 	desc_nature_work	= request.POST['desc_nature_work']
 	desc_function_work 	= request.POST['desc_function_work']
 	category_of_work 	= request.POST['category_of_work']
-	if_ML_paid_for 		= request.POST.get('if_ML_paid_for', False)
-	ML_pay_twenfivk 	= request.POST.get('ML_pay_twenfivk', False)
+	if_paid_for 		= request.POST.get('if_paid_for', False)
+	pay_twenfivk 	= request.POST.get('pay_twenfivk', False)
 	ongoing_payments	= request.POST.get('ongoing_payments', False)
 	if ongoing_payments:	
 		ongoing_how_much 	= request.POST['ongoing_how_much']
@@ -823,8 +824,8 @@ def license_changed(request):
 	altered_license.desc_nature_work 	= desc_nature_work
 	altered_license.desc_function_work 	= desc_function_work
 	altered_license.category_of_work 	= category_of_work
-	altered_license.if_ML_paid_for 		= if_ML_paid_for
-	altered_license.ML_pay_twenfivk 	= ML_pay_twenfivk
+	altered_license.if_paid_for 		= if_paid_for
+	altered_license.pay_twenfivk 		= pay_twenfivk
 	altered_license.ongoing_payments 	= ongoing_payments
 	altered_license.ongoing_how_much 	= ongoing_how_much
 	altered_license.ongoing_how_often 	= ongoing_how_often
@@ -953,7 +954,7 @@ def password_request_approve(request):
 	try:
 		send_mail('Password reset on OpenSource website', user.first_name +" "+ user.last_name + ",\n    " + 
 			"Your password reset request has been accepted, and your password has been reset. Please log on using username: "
-			+user.username+" and password: "+new_pass+" to choose a new password.", 'wolfa97@comcast.net', [user.email], fail_silently = False)
+			+user.username+" and password: "+new_pass+" to choose a new password.", from_email, [user.email], fail_silently = False)
 		user.save()
 		prequest.delete()
 	except SMTPRecipientsRefused:
@@ -1000,7 +1001,7 @@ def password_request_deny(request):
 
 	try:
 		send_mail('Password reset denied', user.first_name +" "+ user.last_name + ",\n    " + 
-			"Your password reset request has been denied. If you still cannot remember your password, contact an approver and send another request.", 'wolfa97@comcast.net', [user.email], fail_silently = False)
+			"Your password reset request has been denied. If you still cannot remember your password, contact an approver and send another request.", from_email, [user.email], fail_silently = False)
 	except SMTPRecipientsRefused:
 		pass
 

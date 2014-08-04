@@ -40,11 +40,11 @@
 		<option value='Web Tools' {% if category_of_work = 'Web Tools' %}selected{% endif %}>Web Tools</option>
 	</select><br><br><br>
 
-	Marketlive paid for this software: <input type="checkbox" name="if_ML_paid_for" value=True {% if if_ML_paid_for = True %}checked {% endif %} onchange="this.form.ML_pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked"><br><br>
+	Marketlive paid for this software: <input type="checkbox" name="if_paid_for" value=True {% if if_paid_for = True %}checked {% endif %} onchange="this.form.pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked"><br><br>
 
-	&emsp;&emsp;Marketlive paid $25,000 or more for this software: <input type="checkbox" name="ML_pay_twenfivk" value=True {% if ML_pay_twenfivk = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %}><br><br> 
+	&emsp;&emsp;Marketlive paid $25,000 or more for this software: <input type="checkbox" name="pay_twenfivk" value=True {% if pay_twenfivk = True %}checked {% endif %}{% if not if_paid_for = True %}disabled {% endif %}><br><br> 
 
-	&emsp;&emsp;Ongoing payments expected: <input type="checkbox" name="ongoing_payments" value=True {% if ongoing_payments = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %} onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked"><br><br> 
+	&emsp;&emsp;Ongoing payments expected: <input type="checkbox" name="ongoing_payments" value=True {% if ongoing_payments = True %}checked {% endif %}{% if not if_paid_for = True %}disabled {% endif %} onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked"><br><br> 
 
 	&emsp;&emsp;&emsp;&emsp;Ongoing payments are $<input type="number" name="ongoing_how_much" value={{ongoing_how_much}} {% if not ongoing_payments = True %}disabled {% endif %}><br>
 
@@ -134,8 +134,8 @@
 <p>Description of the nature of the work: <b>{{ desc_nature_work }}</b></p>
 <p>Description of the function of the work: <b>{{ desc_function_work }}</b></p>
 <p>Category of work: <b>{{ category_of_work }}</b></p>
-<p>Marketlive paid for this software: <b>{% if if_ML_paid_for = True %}<span style="color:green">True</span>{% elif if_ML_paid_for = False %}<span style="color:red">False</span>{% endif %}</b></p>
-<p>Did Marketlive pay $25,000 or more for it?: <b>{% if ML_pay_twenfivk = True %}<span style="color:green">True</span>{% elif ML_pay_twenfivk = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Marketlive paid for this software: <b>{% if if_paid_for = True %}<span style="color:green">True</span>{% elif if_paid_for = False %}<span style="color:red">False</span>{% endif %}</b></p>
+<p>Did Marketlive pay $25,000 or more for it?: <b>{% if pay_twenfivk = True %}<span style="color:green">True</span>{% elif pay_twenfivk = False %}<span style="color:red">False</span>{% endif %}</b></p>
 <p>Are ongoing payments expected?: <b>{% if ongoing_payments = True %}<span style="color:green">True</span>{% elif ongoing_payments = False %}<span style="color:red">False</span>{% endif %}</b></p>
 <p>&emsp;&emsp;If so, how much?: <b>${{ ongoing_how_much }}</b></p>
 <p>&emsp;&emsp;Every <b>{{ ongoing_how_often }}</b> months</p>

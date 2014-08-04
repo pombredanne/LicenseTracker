@@ -41,11 +41,11 @@ Category of work: <br>
 	<option value='Web Tools' {% if category_of_work = 'Web Tools' %}selected{% endif %}>Web Tools</option>
 </select><br><br><br>
 
-Marketlive paid for this software: <input type="checkbox" name="if_ML_paid_for" value=True {% if if_ML_paid_for = True %}checked {% endif %} onchange="this.form.ML_pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked"><br><br>
+Marketlive paid for this software: <input type="checkbox" name="if_paid_for" value=True {% if if_paid_for = True %}checked {% endif %} onchange="this.form.pay_twenfivk.disabled =! this.checked;this.form.ongoing_payments.disabled =! this.checked"><br><br>
 
-&emsp;&emsp;Marketlive paid $25,000 or more for this software: <input type="checkbox" name="ML_pay_twenfivk" value=True {% if ML_pay_twenfivk = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %}><br><br> 
+&emsp;&emsp;Marketlive paid $25,000 or more for this software: <input type="checkbox" name="pay_twenfivk" value=True {% if pay_twenfivk = True %}checked {% endif %}{% if not if_paid_for = True %}disabled {% endif %}><br><br> 
 
-&emsp;&emsp;Ongoing payments expected: <input type="checkbox" name="ongoing_payments" value=True {% if ongoing_payments = True %}checked {% endif %}{% if not if_ML_paid_for = True %}disabled {% endif %} onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked"><br><br> 
+&emsp;&emsp;Ongoing payments expected: <input type="checkbox" name="ongoing_payments" value=True {% if ongoing_payments = True %}checked {% endif %}{% if not if_paid_for = True %}disabled {% endif %} onchange="this.form.ongoing_how_much.disabled =! this.checked;this.form.ongoing_how_often.disabled =! this.checked"><br><br> 
 
 &emsp;&emsp;&emsp;&emsp;Ongoing payments are $<input type="number" name="ongoing_how_much" value={{ongoing_how_much}} {% if not ongoing_payments = True %}disabled {% endif %}><br>
 

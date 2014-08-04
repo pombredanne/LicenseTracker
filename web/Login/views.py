@@ -7,8 +7,6 @@ from Login.models import User, User_request, Pass_reset
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import PBKDF2PasswordHasher, make_password
 
-salt = 'fm39djqwfo'
-
 def login(request):
 	if 'auth' in request.session:
 		auth_session = request.session['auth']
@@ -121,7 +119,7 @@ def request_sent(request):
 		approver_email_list = []
 		for admin in User.objects.all():
 			if admin.approver_status == True:
-				send_mail('New user request on OpenSource site', admin.username + ",\n    " + new_user_request.first_name+" "+new_user_request.last_name+" has sent a request to become an authorized user on the Marketlive OpenSource database website. Please log on to accept or reject this request.", 'wolfa97@comcast.net', [admin.email], fail_silently = False)
+				send_mail('New user request on OpenSource site', admin.username + ",\n    " + new_user_request.first_name+" "+new_user_request.last_name+" has sent a request to become an authorized user on the "+company_name+" OpenSource database website. Please log on to accept or reject this request.", from_email, [admin.email], fail_silently = False)
 
 	auth_test = request.session['auth']
 
@@ -170,8 +168,8 @@ def password_request_sent(request):
 		for admin in User.objects.all():
 			if admin.approver_status == True:
 				send_mail('New change password request', admin.username + ",\n    " + a.first_name+" "+a.last_name+
-					" has sent a request for his/her password to be reset on the Marketlive OpenSource database website. Please log on to accept or reject this request.",
-					'wolfa97@comcast.net', [admin.email], fail_silently = False)
+					" has sent a request for his/her password to be reset on the "+company_name+" OpenSource database website. Please log on to accept or reject this request.",
+					from_email, [admin.email], fail_silently = False)
 
 		template  = loader.get_template('Login/password_request_sent.html') 
 		context   = RequestContext(request, {
