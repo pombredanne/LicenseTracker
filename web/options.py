@@ -11,8 +11,9 @@ email_port = 587				   	#optimal port varies per host. You may need to look it u
 #Put your company's logo into "Base/static/Base".
 ilogo = 'ML_Logo.png'	 			#name of the image, with extention
 
-
-
+site_url = 'localhost:8000'			#your site's url. The bit after the "www." or "http://", including the ".com" or whatever ending.
+									#THIS DOES NOT SET IT UP ONLINE FOR YOU, IT IS SIMPLY TO LET DJANGO KNOW WHAT HOSTS TO ALLOW
+debug = True						#turn off when website is up and running! Helps with errors, but is a security problem if left on.
 
 #ignore this:
 logo = "Base/"+ilogo

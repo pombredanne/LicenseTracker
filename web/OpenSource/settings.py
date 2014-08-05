@@ -1,3 +1,6 @@
+# Most all of this is linked to what you put on "options.py". I don't recommend changing anything,
+# unless you know what you are doing.
+
 from options import *
 
 """
@@ -24,9 +27,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'crt@q-4ekx9hu!k3h_f!ns@&unb-ifzfl0clbgz(#3gb@mle6&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = debug
 
 ALLOWED_HOSTS = [
+    "."+site_url,
+    "."+site_url+".",
 ]
 
 TEMPLATE_DEBUG = True

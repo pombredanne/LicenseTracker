@@ -22,7 +22,7 @@ Congratulations! You've installed things.
 ==============
 
 Customization:
-There are a few settings you can change right-off-the-bat. Edit the "options.py" file in the "web" folder, and enter information about your company name, company email, and the likes.
+There are a few settings you can change right-off-the-bat. Edit the "options.py" file in the "web" folder, and enter information about your company name, company email, and the likes. Necessary before your site will run error-free.
 
 ==============
 
