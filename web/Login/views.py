@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from Login.models import User, User_request, Pass_reset
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import PBKDF2PasswordHasher, make_password
+from options import *
 
 def login(request):
 	if 'auth' in request.session:

@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
+ADMINS = (('Alex', 'wolfa97@comcast.net')) #I'll get an email if you have an error, and so know to fix it.
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -24,9 +26,10 @@ SECRET_KEY = 'crt@q-4ekx9hu!k3h_f!ns@&unb-ifzfl0clbgz(#3gb@mle6&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+ALLOWED_HOSTS = [
+]
 
-ALLOWED_HOSTS = []
+TEMPLATE_DEBUG = True
 
 # Application definition
 

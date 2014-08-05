@@ -21,14 +21,23 @@ def home(request):
 		approver_session = False
 	if auth_session != True:
 		return HttpResponseRedirect('/login')
+	urequest_list = []
+	lrequest_list = []
+	for u in User_request.objects.all():
+		if u.denied != True:
+			urequest_list.append(u)
+	for l in License.objects.filter(authorization='none'):
+		lrequest_list.append(l)
 
-	
-	template  = loader.get_template('Base/home.html') 
-	context   = RequestContext(request, {
-		'auth_session' 		: auth_session,
-		'approver_session' 	: approver_session,
-	})
-	return HttpResponse(template.render(context))
+	if approver_session == True:
+		if urequest_list:
+			return HttpResponseRedirect('/user/view_requests')
+		elif lrequest_list:
+			return HttpResponseRedirect('/license/view_requests')
+		else:
+			return HttpResponseRedirect('/license/view/page_1')
+	else:
+		return HttpResponseRedirect('/license/view/page_1')
 
 def view_licenses(request, pagenum):
 	if 'auth' in request.session:
@@ -69,6 +78,7 @@ def view_licenses(request, pagenum):
 		'approver_session' 	: approver_session,
 		'license_list'		: current_page.object_list,
 		'current_page'		: current_page,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -117,6 +127,7 @@ def view_licenses_search(request):
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
 		'license_list'		: license_list,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -143,6 +154,7 @@ def request_form(request):
 		'auth_session' : auth_session,
 		'approver_session' 	: approver_session,
 		'error' : request_error,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -189,6 +201,7 @@ def additional_information(request):
 			'approver_session' 	: approver_session,
 			'software_name' 	: software_name,
 			'software_version' 	: software_version,
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -270,6 +283,7 @@ def request_sent(request):
 	context   = RequestContext(request, {
 		'auth_session'   	: auth_session,
 		'approver_session' 	: approver_session,
+		'logo'				: logo,
 
 	})
 	return HttpResponse(template.render(context))
@@ -307,6 +321,7 @@ def user_requests(request):
 		'auth_session'   : auth_session,
 		'user_list'      : user_list,
 		'approver_session' 	: approver_session,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 	
@@ -350,6 +365,7 @@ def user_request_detail(request, user_id):
 		'user_request_password'  : viewed_user.password,
 		'approver_session'		 : approver_session,
 		'error'					 : error,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -418,6 +434,7 @@ def user_approved(request):
 		'new_lastname'		 : new_lastname,
 		'new_email'			 : new_email,
 		'new_approverstatus' : new_approverstatus,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -484,6 +501,7 @@ def license_requests(request):
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
 		'license_list'		: license_list,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -502,7 +520,7 @@ def request_detail(request, license_id):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -541,6 +559,7 @@ def request_detail(request, license_id):
 		'authorization'		  : viewed_license.authorization,
 		'date_requested'	  : viewed_license.date_requested,
 		'license_id'		  : viewed_license.id,
+		'logo'				  : logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -559,7 +578,7 @@ def license_approved(request):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -636,6 +655,7 @@ def license_approved(request):
 	context   = RequestContext(request, {
 		'auth_session'   	: auth_session,
 		'approver_session' 	: approver_session,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -654,7 +674,7 @@ def license_deny_reason(request):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -665,6 +685,7 @@ def license_deny_reason(request):
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
 		'id'				: license_id,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -683,7 +704,7 @@ def license_denied(request):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -699,6 +720,7 @@ def license_denied(request):
 	context   = RequestContext(request, {
 		'auth_session'   	: auth_session,
 		'approver_session' 	: approver_session,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -730,8 +752,8 @@ def license_detail(request, license_id):
 		'desc_nature_work'	  : license.desc_nature_work,
 		'desc_function_work'  : license.desc_function_work,
 		'category_of_work'	  : license.category_of_work,
-		'if_paid_for'	  : license.if_paid_for,
-		'pay_twenfivk'	  : license.pay_twenfivk,
+		'if_paid_for'	  	  : license.if_paid_for,
+		'pay_twenfivk'		  : license.pay_twenfivk,
 		'ongoing_payments'	  : license.ongoing_payments,
 		'ongoing_how_much'	  : license.ongoing_how_much,
 		'ongoing_how_often'	  : license.ongoing_how_often,
@@ -751,6 +773,7 @@ def license_detail(request, license_id):
 		'license_id'		  : license.id,
 		'back'				  : request.session['prev_page'],
 		'deny_reason'		  : license.deny_reason,
+		'logo'				  : logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -770,7 +793,7 @@ def license_changed(request):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -848,6 +871,7 @@ def license_changed(request):
 	context   = RequestContext(request, {
 		'auth_session'   	: auth_session,
 		'approver_session' 	: approver_session,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -883,6 +907,7 @@ def password_requests(request):
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
 		'user_list'			: user_list,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -901,8 +926,8 @@ def password_request_detail(request, pass_id):
 	if approver_session != True:
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
-			'auth_session'	   : auth_session,
-
+			'auth_session'	    : auth_session,
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 	
@@ -917,6 +942,7 @@ def password_request_detail(request, pass_id):
 		'username'			: a.user.username,
 		'request_text'		: a.text,
 		'request_id'		: a.id,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -935,7 +961,7 @@ def password_request_approve(request):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -964,6 +990,7 @@ def password_request_approve(request):
 			'approver_session' 	: approver_session,
 			'first'				: user.first_name,
 			'last'				: user.last_name, 
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -971,6 +998,7 @@ def password_request_approve(request):
 	context   = RequestContext(request, {
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -989,7 +1017,7 @@ def password_request_deny(request):
 		template  = loader.get_template('Base/not_approver.html')
 		context   = RequestContext(request, {
 			'auth_session'	   : auth_session,
-
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 
@@ -1011,6 +1039,7 @@ def password_request_deny(request):
 		'approver_session' 	: approver_session,
 		'first'				: user.first_name,
 		'last'				: user.last_name,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -1037,6 +1066,7 @@ def change_password(request):
 		'auth_session' 		: auth_session,
 		'approver_session' 	: approver_session,
 		'error'				: error,
+		'logo'				: logo,
 	})
 	return HttpResponse(template.render(context))
 
@@ -1068,6 +1098,7 @@ def password_changed(request):
 		context   = RequestContext(request, {
 			'auth_session' 		: auth_session,
 			'approver_session' 	: approver_session,
+			'logo'				: logo,
 		})
 		return HttpResponse(template.render(context))
 

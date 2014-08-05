@@ -2,22 +2,21 @@
 <html>
 <head>{% block head %}{% endblock %}</head>
 <body>
-
+{% load static %}
 {% if auth_session = True %}
 
 	{% block entire %}
-	<div id="container" style="height:300px;float:left;">
-		<div id="left_margin" style="background-color:white;height:500px;width:200px;float:left;">
-		</div>
+	<div id="logo" style="background-color:lightgray;width:200px;height:50px;float:left;padding:0px">
 
-		<div id="header" style="background-color:lightgrey;height:50px;width:1000px;text-align:center">
-			<h1 style="margin-bottom:0;"> <u>{% block Title %}Test!{% endblock %}</u> </h1></div>
-
-		<div id="sidebar" style="background-color:lightgrey;width:200px;float:left;">
+		<img src="{% static logo %}" style='width:200px;height:50px'/>
+	</div>
+	<div id="title" style="background-color:lightgray;width:1000px;height:50px;text-align:center">
+		<h1 style='text-decoration:underline'>{% block Title %}Title{% endblock %}</h1>
+	</div>
+	<div id="sidebar" style="background-color:lightgray;width:200px;padding:0px;float:left">
 	{% block Sidebar %}
 		{% if approver_session = True %}
 			<ul><font size=5>
-				<li><a href="{% url 'home' %}"> Home page </a></li><br>
 				<li><a href="/license/view/page_1"> View licenses </a></li><br>
 				<li><a href="{% url 'request_form' %}"> Create new license </a></li><br>
 				<li><a href="{% url 'license_requests' %}">View license requests </a></li><br>
@@ -27,26 +26,18 @@
 
 		{% else %}
 			<ul><font size=5>
-				<li><a href="{% url 'home' %}"> Home page </a></li><br>
 				<li><a href="/license/view/page_1"> View licenses </a></li><br>
 				<li><a href="{% url 'request_form' %}"> Submit license request </a></li><br>
 				<li><a href="/login/logout"> Logout </a></li></font>
 		{% endif %}
 	{% endblock %}</div>
 
-		<div id="content_left_margin" style="height:100px;width:30px;float:left;">
-		</div>
-		
-
-		<div id="content" style="width:540px;float:left;">
-			<br><br>
+	<div id="content" style="width:700px;margin-left:250px;margin-top:40px;margin-right:50px">
 
 	{% block content %}
 		He he he
-	{% endblock %}
-		</div>
+	{% endblock %}</div>
 
-		</div>
 
 	{% endblock entire %}
 
